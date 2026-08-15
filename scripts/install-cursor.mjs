@@ -38,13 +38,37 @@ function filesMatch(a, b) {
   return readFileSync(a, "utf8") === readFileSync(b, "utf8");
 }
 
+function backupId() {
+  return new Date().toISOString().replace(/[-:.]/g, "");
+}
+
+function backupLegacyCursorInstall(target) {
+  const legacySkill = join(target, ".cursor", "skills", "deliberate");
+  const legacyAgent = join(target, ".cursor", "agents", "deliberate-reviewer.md");
+  if (!existsSync(legacySkill) && !existsSync(legacyAgent)) return;
+
+  const backupRoot = join(target, ".intent-witness", "backups", backupId(), "legacy");
+  if (existsSync(legacySkill)) {
+    copyDir(legacySkill, join(backupRoot, "skills", "deliberate"));
+    rmSync(legacySkill, { recursive: true, force: true });
+  }
+  if (existsSync(legacyAgent)) {
+    const backupAgent = join(backupRoot, "agents", "deliberate-reviewer.md");
+    mkdirSync(dirname(backupAgent), { recursive: true });
+    copyFileSync(legacyAgent, backupAgent);
+    rmSync(legacyAgent, { force: true });
+  }
+}
+
 export function installCursor(targetDir) {
   const target = resolve(targetDir);
   const skillDest = join(target, ".cursor", "skills", "intent-witness");
   const agentDest = join(target, ".cursor", "agents", "intent-witness-reviewer.md");
   const intentDest = join(target, ".intent-witness", "intent.md");
   const reviewsDir = join(target, ".intent-witness", "reviews");
+  const legacyIntent = join(target, ".deliberate", "intent.md");
 
+  backupLegacyCursorInstall(target);
   if (existsSync(skillDest)) rmSync(skillDest, { recursive: true, force: true });
   copyDir(SKILL_SRC, skillDest);
   mkdirSync(dirname(agentDest), { recursive: true });
@@ -53,7 +77,7 @@ export function installCursor(targetDir) {
   mkdirSync(reviewsDir, { recursive: true });
   if (!existsSync(intentDest)) {
     mkdirSync(dirname(intentDest), { recursive: true });
-    copyFileSync(INTENT_TEMPLATE, intentDest);
+    copyFileSync(existsSync(legacyIntent) ? legacyIntent : INTENT_TEMPLATE, intentDest);
   }
 
   return { skillDest, agentDest, intentDest };
@@ -73,6 +97,13 @@ export function checkCursorInstall(targetDir) {
   const agentDest = join(target, ".cursor", "agents", "intent-witness-reviewer.md");
   if (!filesMatch(AGENT_SRC, agentDest)) {
     mismatches.push(join(".cursor", "agents", "intent-witness-reviewer.md"));
+  }
+
+  if (existsSync(join(target, ".cursor", "skills", "deliberate"))) {
+    mismatches.push(join(".cursor", "skills", "deliberate"));
+  }
+  if (existsSync(join(target, ".cursor", "agents", "deliberate-reviewer.md"))) {
+    mismatches.push(join(".cursor", "agents", "deliberate-reviewer.md"));
   }
 
   return mismatches;

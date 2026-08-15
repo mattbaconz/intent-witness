@@ -42,11 +42,17 @@ Build the frontend normally. Use the project's existing framework/design system 
 
 Do not pre-emptively force a “Intent Witness aesthetic.”
 
-### 3. Render the actual UI
+### 3. Capture scoped rendered evidence before delegation
 
-Review must be grounded in the implementation, not only source code.
+The **parent/builder** uses Cursor Browser (or the host's browser capability) before delegating. The reviewer never operates the browser.
 
-For a material screen change, inspect when available:
+Choose a stable `<review-id>`, then capture the applicable rendered states and store the artifacts under:
+
+```text
+.intent-witness/evidence/<review-id>/
+```
+
+For a material screen change, capture when available:
 
 - desktop/primary viewport;
 - full page if scroll structure matters;
@@ -54,7 +60,9 @@ For a material screen change, inspect when available:
 - important interactive state(s);
 - error/loading/empty state when relevant to the task.
 
-Use host browser capabilities or the configured evidence tool. If no rendered evidence can be obtained, say so and reduce confidence rather than pretending.
+Create a concise evidence manifest in the same directory. For every artifact, record its path, route, viewport, state, and directly observed fact. Screenshot filenames should make the captured route/state clear.
+
+Review must be grounded in this supplied evidence, not only source code or implementation rationale. If capture is unavailable, delegate with that limitation so the reviewer can return `INSUFFICIENT_EVIDENCE` and name the exact follow-up capture required.
 
 ### 4. Delegate independent review
 
@@ -64,14 +72,19 @@ If the host supports a dedicated subagent/custom agent, invoke the **fresh-conte
 - user request;
 - changed routes/files;
 - relevant design memory;
-- route/base URL for the running app;
+- review id and `.intent-witness/evidence/<review-id>/` manifest;
+- supplied artifact paths plus the parent-observed facts for each artifact;
 - previous review from `.intent-witness/reviews/` if this is a revision.
 
-Do not ask the reviewer to implement. Independence is part of the product hypothesis.
+Do not ask the reviewer to implement, browse, invoke MCP, or capture evidence. The reviewer is hard read-only and judges only the supplied evidence packet. Independence is part of the product hypothesis.
 
 If native subagents are unavailable, perform the review as a clearly separated second phase with the strongest available context isolation.
 
-### 5. Require evidence-based output
+### 5. Fulfill insufficient-evidence requests
+
+On `INSUFFICIENT_EVIDENCE`, the reviewer must name the missing evidence precisely: route, viewport, state, interaction, or artifact fact. The parent fulfills those requests with Cursor Browser, stores the additional artifacts and facts under the **same** `.intent-witness/evidence/<review-id>/` directory, then delegates a rereview with the expanded packet. Never ask the reviewer to collect the missing evidence itself.
+
+### 6. Require evidence-based output
 
 A material review finding must contain:
 
@@ -92,7 +105,7 @@ Valid finding:
 
 > Four aggregate KPI cards occupy the strongest first-viewport hierarchy, while the user's primary job is monitoring active execution. This makes live run state visually subordinate to secondary summary data. Depth: information architecture. Do not solve by only shrinking or restyling the KPI cards; reorganize the page around the active workflow.
 
-### 6. Persist the review artifact
+### 7. Persist the review artifact
 
 After the reviewer returns, write the human summary plus structured YAML to:
 
@@ -104,7 +117,7 @@ Use a stable id such as `2026-08-15-dashboard` or increment `review-1`, `review-
 
 Do not declare the UI done until this file exists for the current change.
 
-### 7. Classify deepest problem
+### 8. Classify deepest problem
 
 Use exactly these conceptual depths:
 
@@ -117,7 +130,7 @@ Address the deepest material issue first.
 
 **Do not “fix” a Level 3/4 issue with only Level 1 changes.**
 
-### 8. Distinguish convention from unjustified convergence
+### 9. Distinguish convention from unjustified convergence
 
 Before criticizing a familiar pattern, ask:
 
@@ -129,7 +142,7 @@ Before criticizing a familiar pattern, ask:
 
 If a common convention is justified, leave it alone.
 
-### 9. Force structural alternatives when needed
+### 10. Force structural alternatives when needed
 
 If the deepest problem is information architecture or interaction, or the builder has already cosmetically revised the same weak structure, require 2–3 **structurally distinct** directions before implementation.
 
@@ -143,7 +156,7 @@ Use constraints such as:
 
 Choose based on product fit, not novelty.
 
-### 10. Revise
+### 11. Revise
 
 The builder implements the revision. Do not defend the original implementation merely because you authored it.
 
@@ -155,13 +168,13 @@ Resolve findings in this order:
 4. composition/hierarchy;
 5. polish.
 
-### 11. Compare, don't restart
+### 12. Compare, don't restart
 
 After revision, re-render, then ask `intent-witness-reviewer` to compare before/after. Pass:
 
 - previous `.intent-witness/reviews/*.yaml`;
 - what changed;
-- current route/base URL.
+- current evidence manifest and artifact facts.
 
 The reviewer should answer:
 
@@ -173,7 +186,7 @@ The reviewer should answer:
 
 Persist the comparison as a new review file (or a `comparison` block on the new review). Do not re-litigate resolved decisions without new evidence.
 
-### 12. Stop
+### 13. Stop
 
 Default maximum: **two** reviewer-requested revision cycles for ordinary work.
 
