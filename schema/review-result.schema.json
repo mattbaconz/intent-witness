@@ -1,0 +1,134 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://deliberate.dev/schema/review-result.schema.json",
+  "title": "Deliberate ReviewResult",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "protocolVersion",
+    "schemaVersion",
+    "verdict",
+    "summary",
+    "findings",
+    "alternativesRequired",
+    "overallConfidence"
+  ],
+  "properties": {
+    "protocolVersion": { "type": "string", "const": "0.1" },
+    "schemaVersion": { "type": "string", "const": "0.1" },
+    "verdict": {
+      "type": "string",
+      "enum": ["PASS", "PASS_WITH_NOTES", "REVISE", "INSUFFICIENT_EVIDENCE"]
+    },
+    "summary": { "type": "string", "minLength": 1 },
+    "deepestProblem": {
+      "type": ["string", "null"],
+      "enum": ["polish", "composition", "information_architecture", "interaction", null]
+    },
+    "findings": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/ReviewFinding" }
+    },
+    "alternativesRequired": { "type": "boolean" },
+    "alternativeConstraints": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "overallConfidence": { "type": "string", "enum": ["low", "medium", "high"] }
+  },
+  "$defs": {
+    "ProblemDepth": {
+      "type": "string",
+      "enum": ["polish", "composition", "information_architecture", "interaction"]
+    },
+    "Evidence": {
+      "oneOf": [
+        {
+          "type": "object",
+          "required": ["kind", "path"],
+          "properties": {
+            "kind": { "const": "screenshot" },
+            "path": { "type": "string" },
+            "region": { "type": "string" },
+            "note": { "type": "string" },
+            "fact": { "type": "string" }
+          }
+        },
+        {
+          "type": "object",
+          "required": ["kind", "fact"],
+          "properties": {
+            "kind": { "const": "dom" },
+            "selector": { "type": "string" },
+            "fact": { "type": "string" }
+          }
+        },
+        {
+          "type": "object",
+          "required": ["kind", "file", "fact"],
+          "properties": {
+            "kind": { "const": "source" },
+            "file": { "type": "string" },
+            "line": { "type": "number" },
+            "fact": { "type": "string" }
+          }
+        },
+        {
+          "type": "object",
+          "required": ["kind", "route", "steps", "fact"],
+          "properties": {
+            "kind": { "const": "interaction" },
+            "route": { "type": "string" },
+            "steps": { "type": "array", "items": { "type": "string" } },
+            "fact": { "type": "string" }
+          }
+        },
+        {
+          "type": "object",
+          "required": ["kind", "viewport", "fact"],
+          "properties": {
+            "kind": { "const": "responsive" },
+            "viewport": { "type": "string" },
+            "fact": { "type": "string" }
+          }
+        },
+        {
+          "type": "object",
+          "required": ["kind", "source", "fact"],
+          "properties": {
+            "kind": { "const": "design-memory" },
+            "source": { "type": "string" },
+            "fact": { "type": "string" }
+          }
+        }
+      ]
+    },
+    "ReviewFinding": {
+      "type": "object",
+      "required": [
+        "id",
+        "title",
+        "observation",
+        "productMismatch",
+        "evidence",
+        "depth",
+        "severity",
+        "confidence"
+      ],
+      "properties": {
+        "id": { "type": "string" },
+        "title": { "type": "string" },
+        "observation": { "type": "string" },
+        "productMismatch": { "type": "string" },
+        "evidence": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/Evidence" }
+        },
+        "depth": { "$ref": "#/$defs/ProblemDepth" },
+        "severity": { "type": "string", "enum": ["non_blocking", "material"] },
+        "confidence": { "type": "string", "enum": ["low", "medium", "high"] },
+        "revisionConstraint": { "type": "string" }
+      }
+    }
+  }
+}

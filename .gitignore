@@ -1,0 +1,13 @@
+node_modules/
+dist/
+.worktrees/
+.superpowers/
+.DS_Store
+*.log
+examples/demo-dashboard/node_modules/
+examples/demo-dashboard/dist/
+.deliberate/reviews/*.yaml
+.deliberate/reviews/*.yml
+.deliberate/reviews/*.json
+.deliberate/evidence/
+!evals/fixtures/

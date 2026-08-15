@@ -1,0 +1,46 @@
+{
+  "id": "redundant-routes",
+  "scenario": "Authenticated app with Dashboard, Insights, and Activity routes that show overlapping counts, charts, and recent events without distinct jobs.",
+  "expected": {
+    "verdict": "REVISE",
+    "deepest_problem": "information_architecture"
+  },
+  "review": {
+    "protocol_version": "0.1",
+    "schema_version": "0.1",
+    "verdict": "REVISE",
+    "summary": "Navigation proliferates generic category labels. Dashboard, Insights, and Activity duplicate the same operational information instead of mapping to distinct user jobs.",
+    "deepest_problem": "information_architecture",
+    "overall_confidence": "high",
+    "alternatives_required": true,
+    "alternative_constraints": [
+      "Each remaining top-level route must own a distinct operator job.",
+      "Do not keep Insights or Activity if they only restate Dashboard counts."
+    ],
+    "findings": [
+      {
+        "id": "finding-1",
+        "title": "Dashboard, Insights, and Activity overlap",
+        "observation": "All three routes present run counts, a status chart, and a recent-events list. Labels do not distinguish jobs.",
+        "product_mismatch": "Operators need one place to watch live execution and one place to inspect a specific failure. Overlapping generic routes add navigation without a mental-model split.",
+        "depth": "information_architecture",
+        "severity": "material",
+        "confidence": "high",
+        "evidence": [
+          {
+            "kind": "interaction",
+            "route": "/insights",
+            "steps": ["open /dashboard", "open /insights", "open /activity"],
+            "fact": "Each route repeats the same count strip and recent-event list with different headings."
+          },
+          {
+            "kind": "dom",
+            "selector": "nav a",
+            "fact": "Primary nav contains Dashboard, Insights, and Activity with no further differentiation."
+          }
+        ],
+        "revision_constraint": "Do not solve by restyling the nav or renaming labels without changing what each route contains."
+      }
+    ]
+  }
+}

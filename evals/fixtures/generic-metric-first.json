@@ -1,0 +1,47 @@
+{
+  "id": "generic-metric-first",
+  "scenario": "RelayOps-style operations UI. Primary job is monitoring active execution and intervening on failure, but four aggregate KPI cards dominate the first viewport and live runs sit below the fold.",
+  "expected": {
+    "verdict": "REVISE",
+    "deepest_problem": "information_architecture"
+  },
+  "review": {
+    "protocol_version": "0.1",
+    "schema_version": "0.1",
+    "verdict": "REVISE",
+    "summary": "The screen is a generic metric dashboard. Active execution — the user's primary object — is visually and structurally subordinate to aggregate counts.",
+    "deepest_problem": "information_architecture",
+    "overall_confidence": "high",
+    "alternatives_required": true,
+    "alternative_constraints": [
+      "One direction must organize around the active run as the dominant object.",
+      "One direction cannot use KPI cards as the primary organizing structure.",
+      "One direction must use a temporal/event model rather than a dashboard grid."
+    ],
+    "findings": [
+      {
+        "id": "finding-1",
+        "title": "Primary workflow is visually subordinate",
+        "observation": "Four equal-weight KPI cards occupy the strongest first-viewport hierarchy. The active-runs table and failed-run states appear only after scrolling.",
+        "product_mismatch": "Operators need to see what agents are doing right now and intervene when execution fails. Aggregate totals are secondary to live run state.",
+        "depth": "information_architecture",
+        "severity": "material",
+        "confidence": "high",
+        "evidence": [
+          {
+            "kind": "screenshot",
+            "path": "evals/fixtures/evidence/generic-metric-first-desktop.png",
+            "region": "first viewport",
+            "fact": "KPI strip is the only content above the fold; live runs are not visible."
+          },
+          {
+            "kind": "dom",
+            "selector": "section[aria-label='Overview metrics']",
+            "fact": "The first landmark is an overview-metrics grid, not an active-execution region."
+          }
+        ],
+        "revision_constraint": "Do not solve by merely shrinking or restyling the KPI cards. Reorganize the page around active execution."
+      }
+    ]
+  }
+}

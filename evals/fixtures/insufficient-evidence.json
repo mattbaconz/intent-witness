@@ -1,0 +1,18 @@
+{
+  "id": "insufficient-evidence",
+  "scenario": "Frontend files changed but the app did not render. No screenshot, live route, or interactive state was available to the reviewer.",
+  "expected": {
+    "verdict": "INSUFFICIENT_EVIDENCE",
+    "deepest_problem": null
+  },
+  "review": {
+    "protocol_version": "0.1",
+    "schema_version": "0.1",
+    "verdict": "INSUFFICIENT_EVIDENCE",
+    "summary": "No rendered UI was available. The reviewer cannot judge hierarchy, IA, or interaction from source alone without inventing findings.",
+    "deepest_problem": null,
+    "overall_confidence": "low",
+    "alternatives_required": false,
+    "findings": []
+  }
+}

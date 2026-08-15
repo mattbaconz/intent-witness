@@ -1,0 +1,23 @@
+protocol_version: "0.1"
+schema_version: "0.1"
+verdict: REVISE
+summary: ""
+deepest_problem: information_architecture
+overall_confidence: high
+alternatives_required: true
+alternative_constraints:
+  - One direction must organize around the primary domain object.
+  - One direction cannot reuse the current macrostructure.
+findings:
+  - id: finding-1
+    title: ""
+    observation: ""
+    product_mismatch: ""
+    depth: information_architecture
+    severity: material
+    confidence: high
+    evidence:
+      - kind: screenshot
+        path: ""
+        fact: ""
+    revision_constraint: Do not solve this with polish-only changes.

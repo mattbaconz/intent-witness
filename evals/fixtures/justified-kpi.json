@@ -1,0 +1,18 @@
+{
+  "id": "justified-kpi",
+  "scenario": "Executive health-scan dashboard where the primary job is scanning fleet status. Four KPI cards are the correct first-viewport structure, not unjustified convergence.",
+  "expected": {
+    "verdict": "PASS",
+    "deepest_problem": null
+  },
+  "review": {
+    "protocol_version": "0.1",
+    "schema_version": "0.1",
+    "verdict": "PASS",
+    "summary": "Metric-first hierarchy matches the stated job: executives scan health counts before opening individual runs. The common KPI pattern is justified convention, not slop.",
+    "deepest_problem": null,
+    "overall_confidence": "high",
+    "alternatives_required": false,
+    "findings": []
+  }
+}

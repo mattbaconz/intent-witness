@@ -1,0 +1,21 @@
+{
+  "name": "deliberate",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Independent design-review workflow for coding agents",
+  "license": "MIT",
+  "scripts": {
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "install-cursor": "node scripts/install-cursor.mjs"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.2",
+    "vitest": "^3.2.4"
+  },
+  "dependencies": {
+    "yaml": "^2.8.1",
+    "zod": "^4.0.17"
+  }
+}

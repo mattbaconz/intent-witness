@@ -1,0 +1,47 @@
+{
+  "id": "card-removal-trap",
+  "scenario": "Same information architecture as generic-metric-first after a cosmetic pass: borders, shadows, and card chrome were removed, but aggregate metrics still outrank live execution.",
+  "expected": {
+    "verdict": "REVISE",
+    "deepest_problem": "information_architecture"
+  },
+  "review": {
+    "protocol_version": "0.1",
+    "schema_version": "0.1",
+    "verdict": "REVISE",
+    "summary": "Chrome was removed; the underlying metric-first structure was not. The original IA finding is unresolved.",
+    "deepest_problem": "information_architecture",
+    "overall_confidence": "high",
+    "alternatives_required": true,
+    "alternative_constraints": [
+      "Do not treat borderless metrics as a structural change.",
+      "One direction must make active execution the first-viewport object."
+    ],
+    "findings": [
+      {
+        "id": "finding-1",
+        "title": "Cosmetic pass left the same hierarchy",
+        "observation": "KPI values remain the strongest first-viewport content. Active runs still begin below the fold. Only card borders, shadows, and radius changed.",
+        "product_mismatch": "Operators still cannot see failing or stalled runs without scrolling. Flattened chrome does not restore the primary job.",
+        "depth": "information_architecture",
+        "severity": "material",
+        "confidence": "high",
+        "evidence": [
+          {
+            "kind": "screenshot",
+            "path": "evals/fixtures/evidence/card-removal-trap-desktop.png",
+            "region": "first viewport",
+            "fact": "Four large metric values still dominate; live execution is absent from the first viewport."
+          },
+          {
+            "kind": "source",
+            "file": "src/Dashboard.tsx",
+            "line": 40,
+            "fact": "Render order is still metrics grid, then activity, then runs table."
+          }
+        ],
+        "revision_constraint": "Do not count removal of borders or shadows as resolving an information-architecture finding."
+      }
+    ]
+  }
+}
