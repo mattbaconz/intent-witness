@@ -1,0 +1,1 @@
+{"id":"mobile-incident","title":"Mobile incident response","prompt":"Review a narrow incident screen.","productIntent":"On-call staff act on incidents on phones.","expectedProtocolFocus":["responsive priority"]}

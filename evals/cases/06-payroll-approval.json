@@ -1,0 +1,1 @@
+{"id":"payroll-approval","title":"Payroll approval","prompt":"Review an approval queue.","productIntent":"Approvers find pending payroll tasks quickly.","expectedProtocolFocus":["composition","task priority"]}

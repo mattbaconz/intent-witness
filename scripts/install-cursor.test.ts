@@ -112,4 +112,55 @@ describe("install-cursor", () => {
       rmSync(dir, { recursive: true, force: true });
     }
   });
+
+  it("writes a manifest and creates reviews and evidence directories", () => {
+    const dir = mkdtempSync(join(tmpdir(), "intent-witness-install-"));
+    try {
+      installCursor(dir);
+      const manifest = JSON.parse(readFileSync(join(dir, ".intent-witness", "install.json"), "utf8"));
+      expect(manifest.packageVersion).toBe("0.1.0-alpha.1");
+      expect(manifest.adapterVersion).toBe("0.1");
+      expect(manifest.managedFiles[".cursor/agents/intent-witness-reviewer.md"]).toMatch(/^[a-f0-9]{64}$/);
+      expect(existsSync(join(dir, ".intent-witness", "reviews"))).toBe(true);
+      expect(existsSync(join(dir, ".intent-witness", "evidence"))).toBe(true);
+    } finally { rmSync(dir, { recursive: true, force: true }); }
+  });
+
+  it("refuses an unmanaged conflicting skill without force", () => {
+    const dir = mkdtempSync(join(tmpdir(), "intent-witness-install-"));
+    try {
+      const conflict = join(dir, ".cursor", "skills", "intent-witness");
+      mkdirSync(conflict, { recursive: true });
+      writeFileSync(join(conflict, "SKILL.md"), "# user skill\n");
+      expect(() => installCursor(dir)).toThrow(/unmanaged.*intent-witness/i);
+      expect(readFileSync(join(conflict, "SKILL.md"), "utf8")).toBe("# user skill\n");
+    } finally { rmSync(dir, { recursive: true, force: true }); }
+  });
+
+  it("backs up unmanaged conflicts before a forced replacement", () => {
+    const dir = mkdtempSync(join(tmpdir(), "intent-witness-install-"));
+    try {
+      const conflict = join(dir, ".cursor", "agents", "intent-witness-reviewer.md");
+      mkdirSync(join(dir, ".cursor", "agents"), { recursive: true });
+      writeFileSync(conflict, "# user agent\n");
+      installCursor(dir, { force: true });
+      const backupRoot = join(dir, ".intent-witness", "backups");
+      const backup = readdirSync(backupRoot)[0]!;
+      expect(readFileSync(join(backupRoot, backup, "agents", "intent-witness-reviewer.md"), "utf8")).toBe("# user agent\n");
+      expect(checkCursorInstall(dir)).toEqual([]);
+    } finally { rmSync(dir, { recursive: true, force: true }); }
+  });
+
+  it("backs up locally modified managed files during an upgrade", () => {
+    const dir = mkdtempSync(join(tmpdir(), "intent-witness-install-"));
+    try {
+      installCursor(dir);
+      const skillFile = join(dir, ".cursor", "skills", "intent-witness", "SKILL.md");
+      writeFileSync(skillFile, "# locally modified\n");
+      installCursor(dir);
+      const backup = readdirSync(join(dir, ".intent-witness", "backups"))[0]!;
+      expect(readFileSync(join(dir, ".intent-witness", "backups", backup, "skills", "intent-witness", "SKILL.md"), "utf8")).toBe("# locally modified\n");
+      expect(checkCursorInstall(dir)).toEqual([]);
+    } finally { rmSync(dir, { recursive: true, force: true }); }
+  });
 });

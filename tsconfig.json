@@ -8,8 +8,10 @@
     "noEmit": true,
     "esModuleInterop": true,
     "resolveJsonModule": true,
+    "allowImportingTsExtensions": true,
     "isolatedModules": true,
-    "types": ["vitest/globals"]
+    "types": ["node", "vitest/globals"]
   },
-  "include": ["schema/**/*.ts", "evals/**/*.ts", "scripts/**/*.ts"]
+  "include": ["schema/**/*.ts", "evals/**/*.ts", "scripts/generate-schema.ts"],
+  "exclude": ["**/*.test.ts"]
 }

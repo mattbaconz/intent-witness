@@ -1,0 +1,6 @@
+{
+  "id": "performative-low-function",
+  "scenario": "A payroll approval screen opens with a large animated 3D scene that delays locating the pending approvals.",
+  "expected": { "verdict": "REVISE", "deepest_problem": "composition" },
+  "review": { "protocol_version": "0.1", "schema_version": "0.1", "verdict": "REVISE", "summary": "The performative hero consumes the hierarchy needed for an approval task.", "deepest_problem": "composition", "overall_confidence": "high", "alternatives_required": false, "findings": [{ "id": "performative-low-function", "title": "Animation dominates the approval task", "observation": "The animation occupies most of the first viewport before pending approvals.", "product_mismatch": "Approvers need to scan and act on pending payroll items promptly.", "depth": "composition", "severity": "material", "confidence": "high", "evidence": [{ "kind": "screenshot", "path": "evidence/payroll-hero.png", "fact": "The hero is taller than the visible approval list." }], "revision_constraint": "Restore task hierarchy without treating expressive motion as categorically wrong." }] }
+}

@@ -1,0 +1,6 @@
+{
+  "id": "anti-reference-overfit",
+  "scenario": "A reviewer is told to imitate a fashionable reference, but the patient scheduling product needs accessibility, appointment clarity, and its existing calm visual language.",
+  "expected": { "verdict": "PASS", "deepest_problem": null },
+  "review": { "protocol_version": "0.1", "schema_version": "0.1", "verdict": "PASS", "summary": "The scheduling flow serves its patients and constraints; resemblance to an unrelated reference is not a review criterion.", "deepest_problem": null, "overall_confidence": "high", "alternatives_required": false, "findings": [] }
+}

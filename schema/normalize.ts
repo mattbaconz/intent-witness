@@ -19,6 +19,13 @@ const KEY_MAP: Record<string, string> = {
   critical_states: "criticalStates",
   desired_traits: "desiredTraits",
   explicit_avoid: "explicitAvoid",
+  review_id: "reviewId",
+  base_url: "baseUrl",
+  changed_files: "changedFiles",
+  product_intent: "productIntent",
+  captured_evidence: "capturedEvidence",
+  evidence_requests: "evidenceRequests",
+  created_at: "createdAt",
 };
 
 export function normalizeKeys(value: unknown): unknown {

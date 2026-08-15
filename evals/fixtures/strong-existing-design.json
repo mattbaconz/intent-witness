@@ -1,0 +1,6 @@
+{
+  "id": "strong-existing-design",
+  "scenario": "A mature dispatch product adds a route using its established map-and-queue language, preserving recognizable operator patterns and clear task priority.",
+  "expected": { "verdict": "PASS_WITH_NOTES", "deepest_problem": null },
+  "review": { "protocol_version": "0.1", "schema_version": "0.1", "verdict": "PASS_WITH_NOTES", "summary": "The new route extends a strong existing design language; a minor label note is not material.", "deepest_problem": null, "overall_confidence": "high", "alternatives_required": false, "findings": [{ "id": "existing-design-label", "title": "One secondary label is terse", "observation": "The queue label uses an internal abbreviation.", "product_mismatch": "New dispatchers may need a clearer label.", "depth": "polish", "severity": "non_blocking", "confidence": "medium", "evidence": [{ "kind": "screenshot", "path": "evidence/dispatch.png", "fact": "The queue header is labelled QD." }] }] }
+}

@@ -1,43 +1,17 @@
-# Install Intent Witness (Cursor, V0)
-
-V0 is a project skill plus a read-only reviewer subagent. There is no CLI product yet.
-
-## In this repository
-
-This repo already has `.cursor/skills/intent-witness` and `.cursor/agents/intent-witness-reviewer.md` installed. Refresh them from source:
+# Install Intent Witness for Cursor
 
 ```bash
-node scripts/install-cursor.mjs
-node scripts/install-cursor.mjs --check
+npx @mattbaconz/intent-witness install cursor path/to/your-app
+npx @mattbaconz/intent-witness check cursor path/to/your-app
 ```
 
-## Into another app
+A clone checkout retains the script entry point:
 
 ```bash
-node path/to/intent-witness/scripts/install-cursor.mjs path/to/your-app
+node scripts/install-cursor.mjs path/to/your-app
+node scripts/install-cursor.mjs --check path/to/your-app
 ```
 
-Creates or updates:
+First install refuses existing unmanaged `.cursor/skills/intent-witness/` or `.cursor/agents/intent-witness-reviewer.md`. Inspect them, or replace intentionally with `intent-witness install cursor path/to/your-app --force`. Conflicts and local edits of managed files are copied below `.intent-witness/backups/<UTC-safe-id>/`; intent, reviews, and evidence are never overwritten.
 
-```text
-.cursor/skills/intent-witness/
-.cursor/agents/intent-witness-reviewer.md
-.intent-witness/intent.md          # only if missing
-.intent-witness/reviews/
-```
-
-The reviewer agent is `readonly: true` and `model: inherit`. No `hooks.json` is installed.
-
-### Legacy Deliberate migration
-
-If the target still has generated legacy Cursor paths, the installer copies them to a UTC-safe backup such as `.intent-witness/backups/20260815T163254123Z/legacy/`, then removes only `.cursor/skills/deliberate/` and `.cursor/agents/deliberate-reviewer.md`. It never deletes `.deliberate/` user state. When `.intent-witness/intent.md` is absent, it copies `.deliberate/intent.md` into the new state directory while preserving the old intent and all legacy reviews in place. `--check` reports remaining legacy Cursor paths actionably.
-
-## Then
-
-1. Edit `.intent-witness/intent.md` for the product (domain, primary job, objects, explicit avoid).
-2. Run the app so a browser can load it.
-3. In Cursor: `Use Intent Witness` on the changed UI.
-4. Before delegation, the parent captures scoped rendered evidence with Cursor Browser and stores artifacts plus a manifest under `.intent-witness/evidence/<id>/`.
-5. The builder delegates that evidence packet to `intent-witness-reviewer`, fulfills any specific `INSUFFICIENT_EVIDENCE` requests with more parent-side capture, and writes `.intent-witness/reviews/<id>.yaml`.
-
-If the installed files drift from `skill/intent-witness` or `adapters/cursor/intent-witness-reviewer.md`, `--check` fails. Re-run the installer.
+The parent captures rendered evidence into `.intent-witness/evidence/<review-id>/` and supplies it with intent, changed files, route, and constraints to the hard-read-only reviewer. The reviewer cannot capture, browse, write, or implement. Save returned artifacts under `.intent-witness/reviews/`; fulfill any specific `INSUFFICIENT_EVIDENCE` request with a new parent-side capture.

@@ -21,3 +21,8 @@ findings:
         path: ""
         fact: ""
     revision_constraint: Do not solve this with polish-only changes.
+# For INSUFFICIENT_EVIDENCE, use no findings and add, for example:
+# evidence_requests:
+#   - id: mobile-active-run
+#     request: Capture /runs at 390px with the active run state visible.
+#     reason: Responsive task priority cannot be judged from supplied evidence.

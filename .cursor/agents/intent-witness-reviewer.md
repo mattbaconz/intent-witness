@@ -41,7 +41,7 @@ For material page changes, the packet should normally include a primary desktop 
 
 Use only explicitly supplied source/DOM facts when they are part of the evidence packet; source/DOM inspection never replaces rendered evidence.
 
-If supplied evidence is inadequate, return `INSUFFICIENT_EVIDENCE` with no fabricated findings. In the human summary, include an `Evidence requests:` list with specific missing route, viewport, state, interaction, or artifact fact. The parent must capture those requests and rerun the review; never browse to fulfill them yourself.
+If supplied evidence is inadequate, return `INSUFFICIENT_EVIDENCE` with no fabricated findings and a YAML `evidence_requests` list. Each item needs an id, a specific requested route/viewport/state/interaction/artifact fact, and a reason. The parent must capture those requests and rerun the review; never browse to fulfill them yourself.
 
 ## Review
 

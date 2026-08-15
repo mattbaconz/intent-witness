@@ -1,0 +1,6 @@
+{
+  "id": "backend-settings-leakage",
+  "scenario": "An operator-facing run detail route exposes raw retry-policy keys and queue tuning before the active run state, leaking backend configuration into the primary workflow.",
+  "expected": { "verdict": "REVISE", "deepest_problem": "information_architecture" },
+  "review": { "protocol_version": "0.1", "schema_version": "0.1", "verdict": "REVISE", "summary": "Backend configuration is competing with the operator's active-run task.", "deepest_problem": "information_architecture", "overall_confidence": "high", "alternatives_required": true, "alternative_constraints": ["Make the active run the first object.", "Keep tuning controls behind an explicit secondary context."], "findings": [{ "id": "backend-settings-leakage", "title": "Backend settings displace run state", "observation": "The captured first viewport leads with retry policy and queue controls.", "product_mismatch": "Operators need execution state before administrative configuration.", "depth": "information_architecture", "severity": "material", "confidence": "high", "evidence": [{ "kind": "screenshot", "path": "evidence/settings-leakage.png", "fact": "Retry and queue fields occupy the top section while the active run is lower." }], "revision_constraint": "Do not solve by merely changing the controls' visual treatment." }] }
+}

@@ -49,8 +49,8 @@ export interface ReviewFinding {
 }
 
 export interface ReviewResult {
-  protocolVersion: string;
-  schemaVersion: string;
+  protocolVersion: typeof PROTOCOL_VERSION;
+  schemaVersion: typeof SCHEMA_VERSION;
   verdict: ReviewVerdict;
   summary: string;
   deepestProblem?: ProblemDepth | null;
@@ -58,6 +58,33 @@ export interface ReviewResult {
   alternativesRequired: boolean;
   alternativeConstraints?: string[];
   overallConfidence: Confidence;
+  evidenceRequests?: EvidenceRequest[];
+}
+
+export interface EvidenceRequest {
+  id: string;
+  request: string;
+  reason: string;
+}
+
+export interface ReviewRequest {
+  protocolVersion: typeof PROTOCOL_VERSION;
+  schemaVersion: typeof SCHEMA_VERSION;
+  reviewId: string;
+  mode: "initial" | "comparison";
+  target: { route: string; baseUrl: string; changedFiles: string[] };
+  productIntent: ProductIntent;
+  constraints: string[];
+  capturedEvidence: Evidence[];
+  priorReviewId?: string;
+}
+
+export interface ReviewArtifact {
+  protocolVersion: typeof PROTOCOL_VERSION;
+  schemaVersion: typeof SCHEMA_VERSION;
+  metadata: { reviewId: string; createdAt: string; mode: "initial" | "comparison" };
+  result: ReviewResult;
+  comparison?: ComparisonResult;
 }
 
 export interface ComparisonResult {

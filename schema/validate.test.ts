@@ -1,9 +1,16 @@
 import { describe, expect, it } from "vitest";
+import * as validation from "./validate.ts";
 import {
   parseReviewResult,
   validateComparisonResult,
   validateReviewResult,
 } from "./validate.ts";
+
+function contractValidator(name: "validateReviewRequest" | "validateReviewArtifact") {
+  const candidate = (validation as Record<string, unknown>)[name];
+  expect(typeof candidate).toBe("function");
+  return candidate as (input: unknown) => { ok: boolean; errors?: string[] };
+}
 
 const materialFinding = {
   id: "finding-1",
@@ -129,6 +136,21 @@ describe("validateReviewResult", () => {
     }
   });
 
+  it("requires two to three non-empty structural alternative constraints", () => {
+    const result = validateReviewResult({
+      ...validRevise,
+      alternative_constraints: ["", "Keep the active run prominent.", "Extra direction", "Too many"],
+    });
+    expect(result.ok).toBe(false);
+    if (!result.ok) expect(result.errors.join(" ")).toMatch(/2.*3|non-empty/i);
+  });
+
+  it("rejects material findings from PASS verdicts", () => {
+    const result = validateReviewResult({ ...validRevise, verdict: "PASS" });
+    expect(result.ok).toBe(false);
+    if (!result.ok) expect(result.errors.join(" ")).toMatch(/PASS.*material/i);
+  });
+
   it("rejects an invalid depth", () => {
     const result = validateReviewResult({
       ...validRevise,
@@ -146,6 +168,16 @@ describe("validateReviewResult", () => {
       overall_confidence: "low",
       alternatives_required: false,
       findings: [],
+    });
+    expect(result.ok).toBe(true);
+  });
+
+  it("accepts specific evidence requests for INSUFFICIENT_EVIDENCE", () => {
+    const result = validateReviewResult({
+      protocol_version: "0.1", schema_version: "0.1", verdict: "INSUFFICIENT_EVIDENCE",
+      summary: "The primary route was not captured.", overall_confidence: "low",
+      alternatives_required: false, findings: [],
+      evidence_requests: [{ id: "desktop", request: "Capture /runs at 1440px with the active run visible.", reason: "The primary object is not visible." }],
     });
     expect(result.ok).toBe(true);
   });
@@ -191,5 +223,52 @@ describe("validateComparisonResult", () => {
       next_action: "Ship remaining polish notes or stop.",
     });
     expect(result.ok).toBe(true);
+  });
+
+  it("rejects duplicate and overlapping comparison IDs", () => {
+    const result = validateComparisonResult({
+      prior_review_id: "review-1", resolved_finding_ids: ["finding-1", "finding-1"],
+      unresolved_finding_ids: ["finding-1"], regressions: [], improvements: [], verdict: "REVISE",
+      next_action: "Address the remaining finding.",
+    });
+    expect(result.ok).toBe(false);
+    if (!result.ok) expect(result.errors.join(" ")).toMatch(/unique|disjoint/i);
+  });
+});
+
+const validRequest = {
+  protocol_version: "0.1", schema_version: "0.1", review_id: "review-20260815-01", mode: "initial",
+  target: { route: "/runs", base_url: "http://localhost:5173", changed_files: ["src/App.tsx"] },
+  product_intent: { domain: "operations", target_users: ["operator"], primary_job: "Monitor active execution", primary_objects: ["run"] },
+  constraints: ["Keep keyboard navigation."],
+  captured_evidence: [{ kind: "screenshot", path: ".intent-witness/evidence/review-20260815-01/desktop.png", fact: "The KPI row appears above the active run." }],
+};
+
+describe("review request and artifact contracts", () => {
+  it("accepts an evidence-bounded initial review request", () => {
+    const result = contractValidator("validateReviewRequest")(validRequest);
+    expect(result.ok).toBe(true);
+  });
+
+  it("requires a prior review reference for comparison mode", () => {
+    const result = contractValidator("validateReviewRequest")({ ...validRequest, mode: "comparison" });
+    expect(result.ok).toBe(false);
+    if (!result.ok) expect((result.errors ?? []).join(" ")).toMatch(/prior/i);
+  });
+
+  it("wraps a result and comparison in a review artifact", () => {
+    const result = contractValidator("validateReviewArtifact")({
+      protocol_version: "0.1", schema_version: "0.1",
+      metadata: { review_id: "review-2", created_at: "2026-08-15T00:00:00.000Z", mode: "comparison" },
+      result: validRevise,
+      comparison: { prior_review_id: "review-1", resolved_finding_ids: [], unresolved_finding_ids: ["finding-1"], regressions: [], improvements: [], verdict: "REVISE", next_action: "Rework hierarchy." },
+    });
+    expect(result.ok).toBe(true);
+  });
+
+  it("parses artifact YAML", () => {
+    const parser = (validation as Record<string, unknown>).parseReviewArtifact;
+    expect(typeof parser).toBe("function");
+    expect((parser as (input: string) => { metadata: { reviewId: string } })(`protocol_version: "0.1"\nschema_version: "0.1"\nmetadata:\n  review_id: r\n  created_at: "2026-08-15T00:00:00.000Z"\n  mode: initial\nresult:\n  protocol_version: "0.1"\n  schema_version: "0.1"\n  verdict: PASS\n  summary: Valid\n  overall_confidence: high\n  alternatives_required: false\n  findings: []\n`).metadata.reviewId).toBe("r");
   });
 });

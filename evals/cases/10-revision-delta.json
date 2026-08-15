@@ -1,0 +1,1 @@
+{"id":"revision-delta","title":"Revision comparison","prompt":"Compare a dashboard revision.","productIntent":"Track whether active execution became primary.","expectedProtocolFocus":["comparison deltas","finding IDs"]}

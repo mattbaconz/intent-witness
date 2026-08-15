@@ -15,6 +15,7 @@ export const reviewVerdictSchema = z.enum([
   "REVISE",
   "INSUFFICIENT_EVIDENCE",
 ]);
+export const reviewModeSchema = z.enum(["initial", "comparison"]);
 export const comparisonVerdictSchema = z.enum(["PASS", "PASS_WITH_NOTES", "REVISE"]);
 
 const screenshotEvidenceSchema = z.object({
@@ -78,9 +79,19 @@ export const reviewFindingSchema = z.object({
   revisionConstraint: z.string().optional(),
 });
 
+export const evidenceRequestSchema = z.object({
+  id: z.string().min(1),
+  request: z.string().trim().min(1),
+  reason: z.string().trim().min(1),
+});
+
+const structuralDepths = new Set(["information_architecture", "interaction"]);
+const materialFindings = (findings: z.infer<typeof reviewFindingSchema>[]) =>
+  findings.filter((finding) => finding.severity === "material");
+
 export const reviewResultSchema = z.object({
-  protocolVersion: z.string().min(1),
-  schemaVersion: z.string().min(1),
+  protocolVersion: z.literal("0.1"),
+  schemaVersion: z.literal("0.1"),
   verdict: reviewVerdictSchema,
   summary: z.string().min(1),
   deepestProblem: problemDepthSchema.nullable().optional(),
@@ -88,6 +99,20 @@ export const reviewResultSchema = z.object({
   alternativesRequired: z.boolean(),
   alternativeConstraints: z.array(z.string()).optional(),
   overallConfidence: confidenceSchema,
+  evidenceRequests: z.array(evidenceRequestSchema).optional(),
+}).superRefine((result, context) => {
+  const material = materialFindings(result.findings);
+  material.forEach((finding, index) => {
+    if (finding.evidence.length === 0) context.addIssue({ code: "custom", path: ["findings", index, "evidence"], message: `Material finding ${finding.id} requires at least one evidence item` });
+  });
+  if (result.verdict === "REVISE" && material.length === 0) context.addIssue({ code: "custom", path: ["findings"], message: "REVISE requires at least one material finding" });
+  if ((result.verdict === "PASS" || result.verdict === "PASS_WITH_NOTES") && material.length > 0) context.addIssue({ code: "custom", path: ["findings"], message: `${result.verdict} cannot contain material findings` });
+  if (material.length > 5) context.addIssue({ code: "custom", path: ["findings"], message: "Reviewer may not return more than 5 material findings" });
+  if (result.alternativesRequired) {
+    if (!result.deepestProblem || !structuralDepths.has(result.deepestProblem)) context.addIssue({ code: "custom", path: ["alternativesRequired"], message: "alternativesRequired is only valid when deepestProblem is information_architecture or interaction" });
+    const constraints = result.alternativeConstraints ?? [];
+    if (constraints.length < 2 || constraints.length > 3 || constraints.some((constraint) => constraint.trim().length === 0)) context.addIssue({ code: "custom", path: ["alternativeConstraints"], message: "Structural alternatives require 2–3 non-empty constraints" });
+  }
 });
 
 export const comparisonResultSchema = z.object({
@@ -98,6 +123,12 @@ export const comparisonResultSchema = z.object({
   improvements: z.array(z.string()),
   verdict: comparisonVerdictSchema,
   nextAction: z.string().min(1),
+}).superRefine((comparison, context) => {
+  const resolved = new Set(comparison.resolvedFindingIds);
+  const unresolved = new Set(comparison.unresolvedFindingIds);
+  const allIds = [...comparison.resolvedFindingIds, ...comparison.unresolvedFindingIds, ...comparison.regressions.map((finding) => finding.id)];
+  if (new Set(allIds).size !== allIds.length) context.addIssue({ code: "custom", path: ["resolvedFindingIds"], message: "Comparison finding IDs must be unique" });
+  if ([...resolved].some((id) => unresolved.has(id))) context.addIssue({ code: "custom", path: ["unresolvedFindingIds"], message: "Resolved and unresolved finding IDs must be disjoint" });
 });
 
 export const productIntentSchema = z.object({
@@ -111,4 +142,26 @@ export const productIntentSchema = z.object({
   desiredTraits: z.array(z.string()).optional(),
   constraints: z.array(z.string()).optional(),
   explicitAvoid: z.array(z.string()).optional(),
+});
+
+export const reviewRequestSchema = z.object({
+  protocolVersion: z.literal("0.1"),
+  schemaVersion: z.literal("0.1"),
+  reviewId: z.string().min(1),
+  mode: reviewModeSchema,
+  target: z.object({ route: z.string().min(1), baseUrl: z.string().url(), changedFiles: z.array(z.string().min(1)) }),
+  productIntent: productIntentSchema,
+  constraints: z.array(z.string().min(1)),
+  capturedEvidence: z.array(evidenceSchema),
+  priorReviewId: z.string().min(1).optional(),
+}).superRefine((request, context) => {
+  if (request.mode === "comparison" && !request.priorReviewId) context.addIssue({ code: "custom", path: ["priorReviewId"], message: "comparison mode requires a priorReviewId" });
+});
+
+export const reviewArtifactSchema = z.object({
+  protocolVersion: z.literal("0.1"),
+  schemaVersion: z.literal("0.1"),
+  metadata: z.object({ reviewId: z.string().min(1), createdAt: z.string().datetime(), mode: reviewModeSchema }),
+  result: reviewResultSchema,
+  comparison: comparisonResultSchema.optional(),
 });

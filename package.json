@@ -1,10 +1,38 @@
 {
   "name": "@mattbaconz/intent-witness",
-  "version": "0.1.0",
-  "private": true,
+  "version": "0.1.0-alpha.1",
   "type": "module",
   "description": "Independent design-review workflow for coding agents",
   "license": "MIT",
+  "engines": {
+    "node": ">=20"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "bin": {
+    "intent-witness": "bin/intent-witness.mjs"
+  },
+  "exports": {
+    "./schema": "./schema/index.ts",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "bin/",
+    "scripts/install-cursor.mjs",
+    "skill/intent-witness/",
+    "adapters/cursor/",
+    "templates/",
+    "schema/index.ts",
+    "schema/types.ts",
+    "schema/zod.ts",
+    "schema/validate.ts",
+    "schema/normalize.ts",
+    "schema/*.schema.json",
+    "README.md",
+    "LICENSE",
+    "docs/"
+  ],
   "repository": {
     "type": "git",
     "url": "https://github.com/mattbaconz/intent-witness.git"
@@ -12,9 +40,17 @@
   "scripts": {
     "test": "vitest run",
     "test:watch": "vitest",
+    "typecheck": "tsc --noEmit",
+    "schema:generate": "tsx scripts/generate-schema.ts",
+    "schema:check": "tsx scripts/generate-schema.ts --check",
+    "evals:validate": "tsx evals/run.ts --validate",
+    "docs:check": "node scripts/check-docs.mjs",
+    "package:check": "npm pack --dry-run --json",
     "install-cursor": "node scripts/install-cursor.mjs"
   },
   "devDependencies": {
+    "@types/node": "^22.20.1",
+    "tsx": "^4.23.12",
     "typescript": "^5.9.2",
     "vitest": "^3.2.4"
   },

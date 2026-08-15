@@ -1,93 +1,34 @@
 # Intent Witness
 
-**Stop letting coding agents design on autopilot.**
+Intent Witness is a local-first, Cursor-only design-review workflow. A parent captures rendered evidence; a fresh hard-read-only reviewer judges it against product intent. It returns evidence-backed constraints, never numeric scores or a house style.
 
-Intent Witness is an independent design reviewer for coding agents. After a builder implements a user-facing interface, a read-only reviewer inspects the **rendered UI**, compares it to product intent, and returns evidence-based findings with revision constraints. It does not restyle by default, and it does not impose a house aesthetic.
+## Five-minute alpha path
 
-```text
-Understand → Build → Render → Review → Revise → Compare → Stop
-```
-
-The thesis: AI slop is not one look. It is **convergence without intent**.
-
-## Repository contract
-
-- Public source: `mattbaconz/intent-witness`.
-- Private operational records: `mattbaconz/intent-witness-ops`; do not place release operations, credentials, or private evidence there in the public repository.
-- The reserved package identity is `@mattbaconz/intent-witness`. This alpha remains unpublished.
-- The implementation boundary is Cursor-only V0. Other ADE adapters, SaaS, and a CLI/MCP engine are future work, not runnable components in this repository.
-
-## Install (Cursor)
-
-From this repository:
+Requires Node 20+ and Cursor.
 
 ```bash
-npm install
-node scripts/install-cursor.mjs
+npx @mattbaconz/intent-witness install cursor path/to/your-app
+npx @mattbaconz/intent-witness check cursor path/to/your-app
 ```
 
-Into another project:
+Edit `.intent-witness/intent.md`, start the app, capture desktop/narrow/state evidence with Cursor Browser under `.intent-witness/evidence/<review-id>/`, and ask Cursor to use Intent Witness. The parent supplies those paths and facts to `intent-witness-reviewer`; the reviewer cannot browse, implement, or write. Persist its result under `.intent-witness/reviews/`. Missing evidence produces specific requests, not invented findings.
+
+The installer adds managed Cursor skill/agent files plus user-owned intent, evidence, reviews, and an install manifest. Details: [install](docs/install.md) and [support](docs/support.md).
+
+## Boundaries
+
+Cards, gradients, sidebars, density, and familiar typefaces are not automatic failures. V0 has no universal aesthetic, SlopScore, hosted service, Playwright capture, hooks, or extra ADE adapters. RelayOps is a deliberate metric-first demo, not an indictment of dashboards.
+
+## Development
 
 ```bash
-node scripts/install-cursor.mjs path/to/your-app
-```
-
-That copies:
-
-- `.cursor/skills/intent-witness/`
-- `.cursor/agents/intent-witness-reviewer.md` (`readonly: true`)
-- `.intent-witness/intent.md` if missing
-
-Confirm the install matches source:
-
-```bash
-node scripts/install-cursor.mjs --check
-```
-
-Fill in `.intent-witness/intent.md` before a serious review. Details: [docs/install.md](docs/install.md).
-
-## Usage
-
-1. Run your app.
-2. In Cursor:
-
-```text
-Build the dashboard. Use Intent Witness.
-```
-
-or:
-
-```text
-Review the RelayOps dashboard using Intent Witness.
-```
-
-The builder should implement, render, delegate to `intent-witness-reviewer`, persist `.intent-witness/reviews/`, revise the deepest material issue, and compare. Default budget: two reviewer-requested revision cycles.
-
-## Demo
-
-[`examples/demo-dashboard`](examples/demo-dashboard) is **RelayOps**, an operations UI whose primary job is watching live execution. The shipped layout is a generic KPI dashboard on purpose, so the first review should return `REVISE` at information-architecture depth.
-
-```bash
-cd examples/demo-dashboard
-npm install
-npm run dev
-```
-
-Then: `Review the RelayOps dashboard using Intent Witness.`
-
-## What it does not do
-
-- Cards, gradients, rounded corners, Inter, sidebars, and dark mode are not automatically wrong.
-- There is no universal beauty or slop score.
-- Intent Witness does not replace a designer, Figma, or a component library.
-- V0 does not include SaaS, CLI/MCP, Playwright, or blocking hooks.
-
-## Tests
-
-```bash
+npm ci
 npm test
+npm run typecheck
+npm run schema:check
+npm run evals:validate
+npm run docs:check
+npm run package:check
 ```
 
-## Spec
-
-Product specification lives in [`intent-witness-vault/`](intent-witness-vault/). Agents: start at [AGENTS.md](AGENTS.md).
+Build the demo with `npm run build` in `examples/demo-dashboard`. See [CONTRIBUTING.md](CONTRIBUTING.md) and [SECURITY.md](SECURITY.md).

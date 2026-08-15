@@ -1,0 +1,295 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "protocolVersion": {
+      "type": "string",
+      "const": "0.1"
+    },
+    "schemaVersion": {
+      "type": "string",
+      "const": "0.1"
+    },
+    "reviewId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "mode": {
+      "type": "string",
+      "enum": [
+        "initial",
+        "comparison"
+      ]
+    },
+    "target": {
+      "type": "object",
+      "properties": {
+        "route": {
+          "type": "string",
+          "minLength": 1
+        },
+        "baseUrl": {
+          "type": "string",
+          "format": "uri"
+        },
+        "changedFiles": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      },
+      "required": [
+        "route",
+        "baseUrl",
+        "changedFiles"
+      ],
+      "additionalProperties": false
+    },
+    "productIntent": {
+      "type": "object",
+      "properties": {
+        "productName": {
+          "type": "string"
+        },
+        "domain": {
+          "type": "string",
+          "minLength": 1
+        },
+        "targetUsers": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "primaryJob": {
+          "type": "string",
+          "minLength": 1
+        },
+        "secondaryJobs": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "primaryObjects": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "criticalStates": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "desiredTraits": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "constraints": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "explicitAvoid": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "domain",
+        "targetUsers",
+        "primaryJob",
+        "primaryObjects"
+      ],
+      "additionalProperties": false
+    },
+    "constraints": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "capturedEvidence": {
+      "type": "array",
+      "items": {
+        "oneOf": [
+          {
+            "type": "object",
+            "properties": {
+              "kind": {
+                "type": "string",
+                "const": "screenshot"
+              },
+              "path": {
+                "type": "string",
+                "minLength": 1
+              },
+              "region": {
+                "type": "string"
+              },
+              "note": {
+                "type": "string"
+              },
+              "fact": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "kind",
+              "path"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "properties": {
+              "kind": {
+                "type": "string",
+                "const": "dom"
+              },
+              "selector": {
+                "type": "string"
+              },
+              "fact": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "required": [
+              "kind",
+              "fact"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "properties": {
+              "kind": {
+                "type": "string",
+                "const": "source"
+              },
+              "file": {
+                "type": "string",
+                "minLength": 1
+              },
+              "line": {
+                "type": "number"
+              },
+              "fact": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "required": [
+              "kind",
+              "file",
+              "fact"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "properties": {
+              "kind": {
+                "type": "string",
+                "const": "interaction"
+              },
+              "route": {
+                "type": "string",
+                "minLength": 1
+              },
+              "steps": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "fact": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "required": [
+              "kind",
+              "route",
+              "steps",
+              "fact"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "properties": {
+              "kind": {
+                "type": "string",
+                "const": "responsive"
+              },
+              "viewport": {
+                "type": "string",
+                "minLength": 1
+              },
+              "fact": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "required": [
+              "kind",
+              "viewport",
+              "fact"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "properties": {
+              "kind": {
+                "type": "string",
+                "const": "design-memory"
+              },
+              "source": {
+                "type": "string",
+                "minLength": 1
+              },
+              "fact": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "required": [
+              "kind",
+              "source",
+              "fact"
+            ],
+            "additionalProperties": false
+          }
+        ]
+      }
+    },
+    "priorReviewId": {
+      "type": "string",
+      "minLength": 1
+    }
+  },
+  "required": [
+    "protocolVersion",
+    "schemaVersion",
+    "reviewId",
+    "mode",
+    "target",
+    "productIntent",
+    "constraints",
+    "capturedEvidence"
+  ],
+  "additionalProperties": false
+}

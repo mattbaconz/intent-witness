@@ -28,14 +28,20 @@ function loadFixtures(): FixtureFile[] {
 describe("protocol fixtures", () => {
   const fixtures = loadFixtures();
 
-  it("loads the five required fixtures", () => {
+  it("loads the eleven required protocol fixtures", () => {
     const ids = fixtures.map((f) => f.id).sort();
     expect(ids).toEqual([
+      "anti-reference-overfit",
+      "backend-settings-leakage",
       "card-removal-trap",
       "generic-metric-first",
       "insufficient-evidence",
       "justified-kpi",
+      "performative-but-justified",
+      "performative-low-function",
       "redundant-routes",
+      "responsive-priority-inversion",
+      "strong-existing-design",
     ]);
   });
 

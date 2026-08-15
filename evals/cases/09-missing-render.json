@@ -1,0 +1,1 @@
+{"id":"missing-render","title":"Missing render","prompt":"Review changed frontend files without captures.","productIntent":"A reviewer needs rendered evidence.","expectedProtocolFocus":["insufficient evidence"]}

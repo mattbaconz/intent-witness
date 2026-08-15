@@ -1,7 +1,10 @@
 export {
   parseComparisonResult,
+  parseReviewArtifact,
   parseReviewResult,
+  validateReviewArtifact,
   validateComparisonResult,
+  validateReviewRequest,
   validateReviewResult,
 } from "./validate.ts";
 export {
@@ -10,10 +13,13 @@ export {
   type ComparisonResult,
   type Confidence,
   type Evidence,
+  type EvidenceRequest,
   type FindingSeverity,
   type ProblemDepth,
   type ProductIntent,
   type ReviewFinding,
+  type ReviewArtifact,
+  type ReviewRequest,
   type ReviewResult,
   type ReviewVerdict,
   type ValidationResult,
@@ -21,8 +27,11 @@ export {
 export {
   comparisonResultSchema,
   evidenceSchema,
+  evidenceRequestSchema,
   problemDepthSchema,
   productIntentSchema,
   reviewFindingSchema,
+  reviewArtifactSchema,
+  reviewRequestSchema,
   reviewResultSchema,
 } from "./zod.ts";

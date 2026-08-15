@@ -1,0 +1,6 @@
+{
+  "id": "responsive-priority-inversion",
+  "scenario": "At narrow width, decorative fleet totals remain above the active incident while the desktop layout correctly prioritizes active execution.",
+  "expected": { "verdict": "REVISE", "deepest_problem": "information_architecture" },
+  "review": { "protocol_version": "0.1", "schema_version": "0.1", "verdict": "REVISE", "summary": "The mobile hierarchy reverses the desktop's task priority.", "deepest_problem": "information_architecture", "overall_confidence": "high", "alternatives_required": true, "alternative_constraints": ["Preserve active incident priority at narrow widths.", "Do not retain the desktop KPI ordering as a stacked column."], "findings": [{ "id": "responsive-priority-inversion", "title": "Mobile puts totals before the active incident", "observation": "The 390px capture shows fleet totals before the incident action.", "product_mismatch": "An on-call operator needs the active incident first on a phone.", "depth": "information_architecture", "severity": "material", "confidence": "high", "evidence": [{ "kind": "responsive", "viewport": "390x844", "fact": "Four fleet totals precede the active incident card." }], "revision_constraint": "Change priority, not only spacing." }] }
+}

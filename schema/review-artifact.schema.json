@@ -1,0 +1,630 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "protocolVersion": {
+      "type": "string",
+      "const": "0.1"
+    },
+    "schemaVersion": {
+      "type": "string",
+      "const": "0.1"
+    },
+    "metadata": {
+      "type": "object",
+      "properties": {
+        "reviewId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$"
+        },
+        "mode": {
+          "type": "string",
+          "enum": [
+            "initial",
+            "comparison"
+          ]
+        }
+      },
+      "required": [
+        "reviewId",
+        "createdAt",
+        "mode"
+      ],
+      "additionalProperties": false
+    },
+    "result": {
+      "type": "object",
+      "properties": {
+        "protocolVersion": {
+          "type": "string",
+          "const": "0.1"
+        },
+        "schemaVersion": {
+          "type": "string",
+          "const": "0.1"
+        },
+        "verdict": {
+          "type": "string",
+          "enum": [
+            "PASS",
+            "PASS_WITH_NOTES",
+            "REVISE",
+            "INSUFFICIENT_EVIDENCE"
+          ]
+        },
+        "summary": {
+          "type": "string",
+          "minLength": 1
+        },
+        "deepestProblem": {
+          "anyOf": [
+            {
+              "type": "string",
+              "enum": [
+                "polish",
+                "composition",
+                "information_architecture",
+                "interaction"
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "findings": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "title": {
+                "type": "string",
+                "minLength": 1
+              },
+              "observation": {
+                "type": "string",
+                "minLength": 1
+              },
+              "productMismatch": {
+                "type": "string",
+                "minLength": 1
+              },
+              "evidence": {
+                "type": "array",
+                "items": {
+                  "oneOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "kind": {
+                          "type": "string",
+                          "const": "screenshot"
+                        },
+                        "path": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "region": {
+                          "type": "string"
+                        },
+                        "note": {
+                          "type": "string"
+                        },
+                        "fact": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "kind",
+                        "path"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "kind": {
+                          "type": "string",
+                          "const": "dom"
+                        },
+                        "selector": {
+                          "type": "string"
+                        },
+                        "fact": {
+                          "type": "string",
+                          "minLength": 1
+                        }
+                      },
+                      "required": [
+                        "kind",
+                        "fact"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "kind": {
+                          "type": "string",
+                          "const": "source"
+                        },
+                        "file": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "line": {
+                          "type": "number"
+                        },
+                        "fact": {
+                          "type": "string",
+                          "minLength": 1
+                        }
+                      },
+                      "required": [
+                        "kind",
+                        "file",
+                        "fact"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "kind": {
+                          "type": "string",
+                          "const": "interaction"
+                        },
+                        "route": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "steps": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          }
+                        },
+                        "fact": {
+                          "type": "string",
+                          "minLength": 1
+                        }
+                      },
+                      "required": [
+                        "kind",
+                        "route",
+                        "steps",
+                        "fact"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "kind": {
+                          "type": "string",
+                          "const": "responsive"
+                        },
+                        "viewport": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "fact": {
+                          "type": "string",
+                          "minLength": 1
+                        }
+                      },
+                      "required": [
+                        "kind",
+                        "viewport",
+                        "fact"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "kind": {
+                          "type": "string",
+                          "const": "design-memory"
+                        },
+                        "source": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "fact": {
+                          "type": "string",
+                          "minLength": 1
+                        }
+                      },
+                      "required": [
+                        "kind",
+                        "source",
+                        "fact"
+                      ],
+                      "additionalProperties": false
+                    }
+                  ]
+                }
+              },
+              "depth": {
+                "type": "string",
+                "enum": [
+                  "polish",
+                  "composition",
+                  "information_architecture",
+                  "interaction"
+                ]
+              },
+              "severity": {
+                "type": "string",
+                "enum": [
+                  "non_blocking",
+                  "material"
+                ]
+              },
+              "confidence": {
+                "type": "string",
+                "enum": [
+                  "low",
+                  "medium",
+                  "high"
+                ]
+              },
+              "revisionConstraint": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "title",
+              "observation",
+              "productMismatch",
+              "evidence",
+              "depth",
+              "severity",
+              "confidence"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "alternativesRequired": {
+          "type": "boolean"
+        },
+        "alternativeConstraints": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "overallConfidence": {
+          "type": "string",
+          "enum": [
+            "low",
+            "medium",
+            "high"
+          ]
+        },
+        "evidenceRequests": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "request": {
+                "type": "string",
+                "minLength": 1
+              },
+              "reason": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "required": [
+              "id",
+              "request",
+              "reason"
+            ],
+            "additionalProperties": false
+          }
+        }
+      },
+      "required": [
+        "protocolVersion",
+        "schemaVersion",
+        "verdict",
+        "summary",
+        "findings",
+        "alternativesRequired",
+        "overallConfidence"
+      ],
+      "additionalProperties": false
+    },
+    "comparison": {
+      "type": "object",
+      "properties": {
+        "priorReviewId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "resolvedFindingIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "unresolvedFindingIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "regressions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "title": {
+                "type": "string",
+                "minLength": 1
+              },
+              "observation": {
+                "type": "string",
+                "minLength": 1
+              },
+              "productMismatch": {
+                "type": "string",
+                "minLength": 1
+              },
+              "evidence": {
+                "type": "array",
+                "items": {
+                  "oneOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "kind": {
+                          "type": "string",
+                          "const": "screenshot"
+                        },
+                        "path": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "region": {
+                          "type": "string"
+                        },
+                        "note": {
+                          "type": "string"
+                        },
+                        "fact": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "kind",
+                        "path"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "kind": {
+                          "type": "string",
+                          "const": "dom"
+                        },
+                        "selector": {
+                          "type": "string"
+                        },
+                        "fact": {
+                          "type": "string",
+                          "minLength": 1
+                        }
+                      },
+                      "required": [
+                        "kind",
+                        "fact"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "kind": {
+                          "type": "string",
+                          "const": "source"
+                        },
+                        "file": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "line": {
+                          "type": "number"
+                        },
+                        "fact": {
+                          "type": "string",
+                          "minLength": 1
+                        }
+                      },
+                      "required": [
+                        "kind",
+                        "file",
+                        "fact"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "kind": {
+                          "type": "string",
+                          "const": "interaction"
+                        },
+                        "route": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "steps": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          }
+                        },
+                        "fact": {
+                          "type": "string",
+                          "minLength": 1
+                        }
+                      },
+                      "required": [
+                        "kind",
+                        "route",
+                        "steps",
+                        "fact"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "kind": {
+                          "type": "string",
+                          "const": "responsive"
+                        },
+                        "viewport": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "fact": {
+                          "type": "string",
+                          "minLength": 1
+                        }
+                      },
+                      "required": [
+                        "kind",
+                        "viewport",
+                        "fact"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "kind": {
+                          "type": "string",
+                          "const": "design-memory"
+                        },
+                        "source": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "fact": {
+                          "type": "string",
+                          "minLength": 1
+                        }
+                      },
+                      "required": [
+                        "kind",
+                        "source",
+                        "fact"
+                      ],
+                      "additionalProperties": false
+                    }
+                  ]
+                }
+              },
+              "depth": {
+                "type": "string",
+                "enum": [
+                  "polish",
+                  "composition",
+                  "information_architecture",
+                  "interaction"
+                ]
+              },
+              "severity": {
+                "type": "string",
+                "enum": [
+                  "non_blocking",
+                  "material"
+                ]
+              },
+              "confidence": {
+                "type": "string",
+                "enum": [
+                  "low",
+                  "medium",
+                  "high"
+                ]
+              },
+              "revisionConstraint": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "title",
+              "observation",
+              "productMismatch",
+              "evidence",
+              "depth",
+              "severity",
+              "confidence"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "improvements": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "verdict": {
+          "type": "string",
+          "enum": [
+            "PASS",
+            "PASS_WITH_NOTES",
+            "REVISE"
+          ]
+        },
+        "nextAction": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "priorReviewId",
+        "resolvedFindingIds",
+        "unresolvedFindingIds",
+        "regressions",
+        "improvements",
+        "verdict",
+        "nextAction"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "required": [
+    "protocolVersion",
+    "schemaVersion",
+    "metadata",
+    "result"
+  ],
+  "additionalProperties": false
+}

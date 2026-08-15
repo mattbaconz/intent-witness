@@ -1,0 +1,6 @@
+{
+  "id": "performative-but-justified",
+  "scenario": "A launch microsite uses an expressive animated hero because the product's primary job is communicating a spatial-audio experience to prospective creators.",
+  "expected": { "verdict": "PASS", "deepest_problem": null },
+  "review": { "protocol_version": "0.1", "schema_version": "0.1", "verdict": "PASS", "summary": "The expressive treatment directly demonstrates the product experience and does not displace a task workflow.", "deepest_problem": null, "overall_confidence": "medium", "alternatives_required": false, "findings": [] }
+}
