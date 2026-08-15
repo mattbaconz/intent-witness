@@ -706,7 +706,28 @@
               "severity",
               "confidence"
             ],
-            "additionalProperties": false
+            "additionalProperties": false,
+            "allOf": [
+              {
+                "if": {
+                  "properties": {
+                    "severity": {
+                      "const": "material"
+                    }
+                  },
+                  "required": [
+                    "severity"
+                  ]
+                },
+                "then": {
+                  "properties": {
+                    "evidence": {
+                      "minItems": 1
+                    }
+                  }
+                }
+              }
+            ]
           }
         },
         "improvements": {

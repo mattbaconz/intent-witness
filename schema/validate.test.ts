@@ -244,6 +244,14 @@ describe("validateComparisonResult", () => {
     expect(result.ok).toBe(false);
     if (!result.ok) expect(result.errors.join(" ")).toMatch(/unique|disjoint/i);
   });
+
+  it("rejects a material regression without evidence", () => {
+    const result = validateComparisonResult({
+      prior_review_id: "review-1", resolved_finding_ids: [], unresolved_finding_ids: [], improvements: [], verdict: "REVISE", next_action: "Fix it.",
+      regressions: [{ ...materialFinding, evidence: [] }],
+    });
+    expect(result.ok).toBe(false);
+  });
 });
 
 const validRequest = {

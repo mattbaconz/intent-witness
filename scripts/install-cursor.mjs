@@ -10,6 +10,9 @@ const SKILL_SRC = join(ROOT, "skill", "intent-witness");
 const AGENT_SRC = join(ROOT, "adapters", "cursor", "intent-witness-reviewer.md");
 const INTENT_TEMPLATE = join(ROOT, "templates", "intent.md");
 const ADAPTER_VERSION = "0.1";
+const ADAPTER = "cursor";
+const SKILL_MANAGED_ROOT = ".cursor/skills/intent-witness/";
+const AGENT_MANAGED_PATH = ".cursor/agents/intent-witness-reviewer.md";
 
 function walkFiles(dir) { return readdirSync(dir, { withFileTypes: true }).flatMap((entry) => entry.isDirectory() ? walkFiles(join(dir, entry.name)) : [join(dir, entry.name)]); }
 function hash(path) { return createHash("sha256").update(readFileSync(path)).digest("hex"); }
@@ -24,18 +27,20 @@ function backupRelativePath(relativePath) { return relativePath.replace(/^\.curs
 function copyExisting(target, stamp, relativePath) { const source = targetPath(target, relativePath); if (existsSync(source)) copyFile(source, join(target, ".intent-witness", "backups", stamp, ...backupRelativePath(relativePath).split("/"))); }
 function copyExistingDir(target, stamp, relativePath) { const source = targetPath(target, relativePath); if (existsSync(source)) copyDir(source, join(target, ".intent-witness", "backups", stamp, ...backupRelativePath(relativePath).split("/"))); }
 function manifestErrors(manifest) {
-  const expected = sourceManifest();
   if (!manifest || typeof manifest !== "object" || Array.isArray(manifest)) return ["missing or invalid JSON"];
   const errors = [];
-  if (manifest.packageVersion !== PACKAGE.version) errors.push("packageVersion must match this package");
+  if (manifest.packageName !== PACKAGE.name) errors.push(`packageName must be ${PACKAGE.name}`);
+  if (typeof manifest.packageVersion !== "string" || !/^\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?(?:\+[0-9A-Za-z.-]+)?$/.test(manifest.packageVersion)) errors.push("packageVersion must be a valid semver version");
+  if (manifest.adapter !== ADAPTER) errors.push("adapter must be cursor");
   if (manifest.adapterVersion !== ADAPTER_VERSION) errors.push("adapterVersion must be 0.1");
   if (typeof manifest.installedAt !== "string" || Number.isNaN(Date.parse(manifest.installedAt)) || new Date(manifest.installedAt).toISOString() !== manifest.installedAt) errors.push("installedAt must be an ISO timestamp");
   if (!manifest.managedFiles || typeof manifest.managedFiles !== "object" || Array.isArray(manifest.managedFiles)) errors.push("managedFiles must be an object");
   else {
-    const actualKeys = Object.keys(manifest.managedFiles).sort(); const expectedKeys = Object.keys(expected).sort();
-    if (actualKeys.length !== expectedKeys.length || actualKeys.some((key, index) => key !== expectedKeys[index])) errors.push("managedFiles must contain exactly the managed file keys");
-    for (const key of expectedKeys) {
+    const actualKeys = Object.keys(manifest.managedFiles);
+    if (![`${SKILL_MANAGED_ROOT}SKILL.md`, AGENT_MANAGED_PATH].every((key) => actualKeys.includes(key))) errors.push("managedFiles must include the core skill and reviewer paths");
+    for (const key of actualKeys) {
       const value = manifest.managedFiles[key];
+      if (!(key === AGENT_MANAGED_PATH || (key.startsWith(SKILL_MANAGED_ROOT) && !key.includes("\\") && !key.split("/").includes("..")))) errors.push(`managedFiles.${key} is outside safe managed roots`);
       if (typeof value !== "string" || !/^[a-f0-9]{64}$/.test(value)) errors.push(`managedFiles.${key} must be a SHA-256 hash`);
     }
   }
@@ -64,12 +69,17 @@ export function installCursor(targetDir, { force = false } = {}) {
     if (existsSync(agent)) copyExisting(target, backupStamp(), ".cursor/agents/intent-witness-reviewer.md");
     rmSync(skill, { recursive: true, force: true }); rmSync(agent, { force: true });
   }
-  if (managed) for (const [path, oldHash] of Object.entries(previous.managedFiles)) { const installed = targetPath(target, path); if (existsSync(installed) && hash(installed) !== oldHash) copyExisting(target, backupStamp(), path); }
+  const expected = sourceManifest();
+  if (managed) for (const [path, oldHash] of Object.entries(previous.managedFiles)) {
+    const installed = targetPath(target, path);
+    if (existsSync(installed) && hash(installed) !== oldHash) copyExisting(target, backupStamp(), path);
+    if (!(path in expected) && existsSync(installed)) rmSync(installed, { force: true });
+  }
   for (const [path, source] of sourceFiles()) copyFile(source, targetPath(target, path));
   mkdirSync(join(state, "reviews"), { recursive: true }); mkdirSync(join(state, "evidence"), { recursive: true });
   const intent = join(state, "intent.md");
   if (!existsSync(intent)) copyFile(existsSync(join(target, ".deliberate", "intent.md")) ? join(target, ".deliberate", "intent.md") : INTENT_TEMPLATE, intent);
-  writeFileSync(manifestPath, `${JSON.stringify({ packageVersion: PACKAGE.version, adapterVersion: ADAPTER_VERSION, installedAt: new Date().toISOString(), managedFiles: sourceManifest() }, null, 2)}\n`);
+  writeFileSync(manifestPath, `${JSON.stringify({ packageName: PACKAGE.name, packageVersion: PACKAGE.version, adapter: ADAPTER, adapterVersion: ADAPTER_VERSION, installedAt: new Date().toISOString(), managedFiles: expected }, null, 2)}\n`);
   return { skillDest: skill, agentDest: agent, intentDest: intent, manifestPath };
 }
 
@@ -82,6 +92,7 @@ export function checkCursorInstall(targetDir) {
     if (existsSync(join(target, ".cursor", "agents", "deliberate-reviewer.md"))) mismatches.push(join(".cursor", "agents", "deliberate-reviewer.md"));
     return mismatches;
   }
+  if (manifest.packageVersion !== PACKAGE.version) mismatches.push(".intent-witness/install.json (package version)");
   const expected = sourceManifest();
   for (const [path, expectedHash] of Object.entries(expected)) { const installed = targetPath(target, path); if (manifest.managedFiles[path] !== expectedHash) mismatches.push(`.intent-witness/install.json (${path} hash)`); if (!existsSync(installed) || hash(installed) !== expectedHash) mismatches.push(path); }
   for (const path of Object.keys(manifest.managedFiles)) if (!(path in expected)) mismatches.push(`.intent-witness/install.json (stale ${path})`);

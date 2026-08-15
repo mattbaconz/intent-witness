@@ -38,4 +38,12 @@ describe("generated review-result JSON Schema", () => {
     };
     expect(ajv.compile(reviewArtifactSchema)(artifact)).toBe(false);
   });
+
+  it("rejects a material comparison regression with no evidence", () => {
+    const artifact = {
+      protocolVersion: "0.1", schemaVersion: "0.1", metadata: { reviewId: "r", createdAt: "2026-08-15T00:00:00.000Z", mode: "comparison" }, result: valid,
+      comparison: { priorReviewId: "prior", resolvedFindingIds: [], unresolvedFindingIds: [], regressions: [{ ...valid.findings[0], evidence: [] }], improvements: [], verdict: "REVISE", nextAction: "Fix it." },
+    };
+    expect(ajv.compile(reviewArtifactSchema)(artifact)).toBe(false);
+  });
 });

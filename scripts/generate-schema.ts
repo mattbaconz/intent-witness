@@ -9,10 +9,7 @@ type JsonObject = Record<string, any>;
 function applyReviewResultRules(schema: JsonObject) {
   const properties = schema.properties as JsonObject;
   const finding = properties.findings.items as JsonObject;
-  finding.allOf = [...(finding.allOf ?? []), {
-    if: { properties: { severity: { const: "material" } }, required: ["severity"] },
-    then: { properties: { evidence: { minItems: 1 } } },
-  }];
+  applyFindingRules(finding);
   schema.allOf = [...(schema.allOf ?? []),
     {
       if: { properties: { verdict: { const: "REVISE" } }, required: ["verdict"] },
@@ -27,6 +24,13 @@ function applyReviewResultRules(schema: JsonObject) {
       then: { required: ["alternativeConstraints"], properties: { deepestProblem: { enum: ["information_architecture", "interaction"] }, alternativeConstraints: { minItems: 2, maxItems: 3, items: { type: "string", minLength: 1 } } } },
     },
   ];
+}
+
+function applyFindingRules(finding: JsonObject) {
+  finding.allOf = [...(finding.allOf ?? []), {
+    if: { properties: { severity: { const: "material" } }, required: ["severity"] },
+    then: { properties: { evidence: { minItems: 1 } } },
+  }];
 }
 
 function applyComparisonRules(schema: JsonObject) {
@@ -44,6 +48,7 @@ applyReviewResultRules(schemas["review-result.schema.json"]);
 const artifact = schemas["review-artifact.schema.json"];
 applyReviewResultRules(artifact.properties.result);
 applyComparisonRules(artifact.properties.comparison);
+applyFindingRules(artifact.properties.comparison.properties.regressions.items);
 artifact.$comment = "JSON Schema cannot express that resolvedFindingIds and unresolvedFindingIds are disjoint, or that regression IDs are globally unique; validate those cross-array rules with the published runtime validator.";
 const check = process.argv.includes("--check");
 const drifted: string[] = [];

@@ -1,4 +1,5 @@
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync } from "node:fs";
+import { createHash } from "node:crypto";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { describe, expect, it } from "vitest";
@@ -119,6 +120,8 @@ describe("install-cursor", () => {
       installCursor(dir);
       const manifest = JSON.parse(readFileSync(join(dir, ".intent-witness", "install.json"), "utf8"));
       expect(manifest.packageVersion).toBe("0.1.0-alpha.1");
+      expect(manifest.packageName).toBe("@mattbaconz/intent-witness");
+      expect(manifest.adapter).toBe("cursor");
       expect(manifest.adapterVersion).toBe("0.1");
       expect(manifest.managedFiles[".cursor/agents/intent-witness-reviewer.md"]).toMatch(/^[a-f0-9]{64}$/);
       expect(existsSync(join(dir, ".intent-witness", "reviews"))).toBe(true);
@@ -178,6 +181,39 @@ describe("install-cursor", () => {
       writeFileSync(join(dir, ".intent-witness", "install.json"), JSON.stringify(manifest));
       expect(() => installCursor(dir)).toThrow(/unmanaged/i);
       expect(checkCursorInstall(dir).join(" ")).toMatch(/install\.json.*(missing|invalid|package|installedAt|managedFiles)/i);
+    } finally { rmSync(dir, { recursive: true, force: true }); }
+  });
+
+  it("upgrades a safe prior-version manifest with a different managed-file set", () => {
+    const dir = mkdtempSync(join(tmpdir(), "intent-witness-install-"));
+    try {
+      installCursor(dir);
+      const staleRelative = ".cursor/skills/intent-witness/obsolete.md";
+      const staleFile = join(dir, ".cursor", "skills", "intent-witness", "obsolete.md");
+      writeFileSync(staleFile, "old managed content\n");
+      const manifestPath = join(dir, ".intent-witness", "install.json");
+      const manifest = JSON.parse(readFileSync(manifestPath, "utf8"));
+      manifest.packageVersion = "0.0.9";
+      manifest.managedFiles[staleRelative] = createHash("sha256").update("old managed content\n").digest("hex");
+      writeFileSync(manifestPath, JSON.stringify(manifest));
+
+      installCursor(dir);
+
+      expect(existsSync(staleFile)).toBe(false);
+      expect(checkCursorInstall(dir)).toEqual([]);
+    } finally { rmSync(dir, { recursive: true, force: true }); }
+  });
+
+  it("refuses a manifest that claims an unsafe managed path", () => {
+    const dir = mkdtempSync(join(tmpdir(), "intent-witness-install-"));
+    try {
+      installCursor(dir);
+      const manifestPath = join(dir, ".intent-witness", "install.json");
+      const manifest = JSON.parse(readFileSync(manifestPath, "utf8"));
+      manifest.managedFiles[".cursor/agents/../../settings.json"] = "a".repeat(64);
+      writeFileSync(manifestPath, JSON.stringify(manifest));
+      expect(() => installCursor(dir)).toThrow(/unmanaged/i);
+      expect(checkCursorInstall(dir).join(" ")).toMatch(/unsafe|managedFiles/i);
     } finally { rmSync(dir, { recursive: true, force: true }); }
   });
 });

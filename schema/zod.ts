@@ -77,6 +77,8 @@ export const reviewFindingSchema = z.object({
   severity: severitySchema,
   confidence: confidenceSchema,
   revisionConstraint: z.string().optional(),
+}).superRefine((finding, context) => {
+  if (finding.severity === "material" && finding.evidence.length === 0) context.addIssue({ code: "custom", path: ["evidence"], message: `Material finding ${finding.id} requires at least one evidence item` });
 });
 
 export const evidenceRequestSchema = z.object({
@@ -102,9 +104,6 @@ export const reviewResultSchema = z.object({
   evidenceRequests: z.array(evidenceRequestSchema).optional(),
 }).superRefine((result, context) => {
   const material = materialFindings(result.findings);
-  material.forEach((finding, index) => {
-    if (finding.evidence.length === 0) context.addIssue({ code: "custom", path: ["findings", index, "evidence"], message: `Material finding ${finding.id} requires at least one evidence item` });
-  });
   if (result.verdict === "REVISE" && material.length === 0) context.addIssue({ code: "custom", path: ["findings"], message: "REVISE requires at least one material finding" });
   if ((result.verdict === "PASS" || result.verdict === "PASS_WITH_NOTES") && material.length > 0) context.addIssue({ code: "custom", path: ["findings"], message: `${result.verdict} cannot contain material findings` });
   if (material.length > 5) context.addIssue({ code: "custom", path: ["findings"], message: "Reviewer may not return more than 5 material findings" });
