@@ -1,9 +1,25 @@
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
 import { createHash } from "node:crypto";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { checkCursorInstall, installCursor } from "./install-cursor.mjs";
+
+function linkDirectoryOrSkip(
+  skip: (condition?: boolean | string) => never,
+  target: string,
+  path: string,
+) {
+  try {
+    symlinkSync(target, path, process.platform === "win32" ? "junction" : "dir");
+  } catch (error) {
+    const code = (error as NodeJS.ErrnoException).code;
+    if (["EACCES", "EPERM", "ENOSYS", "UNKNOWN"].includes(code ?? "")) {
+      skip(`This OS cannot create a directory link (${code}).`);
+    }
+    throw error;
+  }
+}
 
 describe("install-cursor", () => {
   it("copies skill and readonly reviewer, then --check passes", () => {
@@ -33,6 +49,28 @@ describe("install-cursor", () => {
       expect(readFileSync(join(dir, ".intent-witness", "intent.md"), "utf8")).toBe("# keep me\n");
     } finally {
       rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
+  it("creates privacy-safe ignore defaults without replacing an existing file", () => {
+    const created = mkdtempSync(join(tmpdir(), "intent-witness-install-"));
+    const preserved = mkdtempSync(join(tmpdir(), "intent-witness-install-"));
+    try {
+      installCursor(created);
+      const defaults = readFileSync(join(created, ".intent-witness", ".gitignore"), "utf8");
+      expect(defaults).toMatch(/^evidence\/$/m);
+      expect(defaults).toMatch(/^reviews\/$/m);
+      expect(defaults).toMatch(/^backups\/$/m);
+      expect(defaults).toMatch(/^install\.json$/m);
+      expect(defaults).toMatch(/^intent\.md$/m);
+
+      mkdirSync(join(preserved, ".intent-witness"), { recursive: true });
+      writeFileSync(join(preserved, ".intent-witness", ".gitignore"), "# user policy\n");
+      installCursor(preserved);
+      expect(readFileSync(join(preserved, ".intent-witness", ".gitignore"), "utf8")).toBe("# user policy\n");
+    } finally {
+      rmSync(created, { recursive: true, force: true });
+      rmSync(preserved, { recursive: true, force: true });
     }
   });
 
@@ -202,6 +240,95 @@ describe("install-cursor", () => {
       expect(existsSync(staleFile)).toBe(false);
       expect(checkCursorInstall(dir)).toEqual([]);
     } finally { rmSync(dir, { recursive: true, force: true }); }
+  });
+
+  it("refuses to overwrite a current destination absent from the prior manifest, then backs it up with force", () => {
+    const dir = mkdtempSync(join(tmpdir(), "intent-witness-install-"));
+    try {
+      installCursor(dir);
+      const relativePath = ".cursor/skills/intent-witness/references/schema.md";
+      const destination = join(dir, ...relativePath.split("/"));
+      const manifestPath = join(dir, ".intent-witness", "install.json");
+      const manifest = JSON.parse(readFileSync(manifestPath, "utf8"));
+      delete manifest.managedFiles[relativePath];
+      writeFileSync(manifestPath, JSON.stringify(manifest));
+      writeFileSync(destination, "# user-owned schema notes\n");
+
+      expect(() => installCursor(dir)).toThrow(/not owned|absent.*manifest/i);
+      expect(readFileSync(destination, "utf8")).toBe("# user-owned schema notes\n");
+
+      installCursor(dir, { force: true });
+      const backup = readdirSync(join(dir, ".intent-witness", "backups"))[0]!;
+      expect(readFileSync(join(dir, ".intent-witness", "backups", backup, "skills", "intent-witness", "references", "schema.md"), "utf8")).toBe("# user-owned schema notes\n");
+      expect(checkCursorInstall(dir)).toEqual([]);
+    } finally { rmSync(dir, { recursive: true, force: true }); }
+  });
+
+  it("installs a new managed destination when it is absent from both disk and the prior manifest", () => {
+    const dir = mkdtempSync(join(tmpdir(), "intent-witness-install-"));
+    try {
+      installCursor(dir);
+      const relativePath = ".cursor/skills/intent-witness/references/schema.md";
+      const destination = join(dir, ...relativePath.split("/"));
+      const manifestPath = join(dir, ".intent-witness", "install.json");
+      const manifest = JSON.parse(readFileSync(manifestPath, "utf8"));
+      delete manifest.managedFiles[relativePath];
+      writeFileSync(manifestPath, JSON.stringify(manifest));
+      rmSync(destination);
+
+      installCursor(dir);
+
+      expect(existsSync(destination)).toBe(true);
+      expect(checkCursorInstall(dir)).toEqual([]);
+    } finally { rmSync(dir, { recursive: true, force: true }); }
+  });
+
+  it("rejects a linked skill destination without writing outside the project", ({ skip }) => {
+    const dir = mkdtempSync(join(tmpdir(), "intent-witness-install-"));
+    const outside = mkdtempSync(join(tmpdir(), "intent-witness-outside-"));
+    try {
+      mkdirSync(join(dir, ".cursor", "skills"), { recursive: true });
+      writeFileSync(join(outside, "SKILL.md"), "# outside skill\n");
+      linkDirectoryOrSkip(skip, outside, join(dir, ".cursor", "skills", "intent-witness"));
+
+      expect(() => installCursor(dir, { force: true })).toThrow(/symbolic link|reparse|boundary/i);
+      expect(readFileSync(join(outside, "SKILL.md"), "utf8")).toBe("# outside skill\n");
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+      rmSync(outside, { recursive: true, force: true });
+    }
+  });
+
+  it("rejects a linked agent ancestor without writing outside the project", ({ skip }) => {
+    const dir = mkdtempSync(join(tmpdir(), "intent-witness-install-"));
+    const outside = mkdtempSync(join(tmpdir(), "intent-witness-outside-"));
+    try {
+      mkdirSync(join(dir, ".cursor"), { recursive: true });
+      writeFileSync(join(outside, "intent-witness-reviewer.md"), "# outside agent\n");
+      linkDirectoryOrSkip(skip, outside, join(dir, ".cursor", "agents"));
+
+      expect(() => installCursor(dir, { force: true })).toThrow(/symbolic link|reparse|boundary/i);
+      expect(readFileSync(join(outside, "intent-witness-reviewer.md"), "utf8")).toBe("# outside agent\n");
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+      rmSync(outside, { recursive: true, force: true });
+    }
+  });
+
+  it("rejects a linked state directory before reading or writing install metadata", ({ skip }) => {
+    const dir = mkdtempSync(join(tmpdir(), "intent-witness-install-"));
+    const outside = mkdtempSync(join(tmpdir(), "intent-witness-outside-"));
+    try {
+      writeFileSync(join(outside, "intent.md"), "# outside intent\n");
+      linkDirectoryOrSkip(skip, outside, join(dir, ".intent-witness"));
+
+      expect(() => installCursor(dir)).toThrow(/symbolic link|reparse|boundary/i);
+      expect(readFileSync(join(outside, "intent.md"), "utf8")).toBe("# outside intent\n");
+      expect(existsSync(join(outside, "install.json"))).toBe(false);
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+      rmSync(outside, { recursive: true, force: true });
+    }
   });
 
   it("refuses a manifest that claims an unsafe managed path", () => {

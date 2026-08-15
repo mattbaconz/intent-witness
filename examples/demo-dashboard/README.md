@@ -21,4 +21,6 @@ From the Intent Witness repo (or this folder, after install):
 Review the RelayOps dashboard using Intent Witness.
 ```
 
-The reviewer should inspect the rendered page, return `REVISE` at information-architecture depth, and forbid a restyle-only fix.
+The parent/builder first captures the rendered desktop, mobile, and relevant interaction states under `.intent-witness/evidence/<review-id>/`. It then sends those paths and directly observed facts as the supplied evidence packet to the independent read-only reviewer.
+
+The read-only reviewer does not open the app or capture more evidence. It judges only the supplied evidence and should return `REVISE` at information-architecture depth, forbidding a restyle-only fix. If evidence is missing, the parent fulfills the precise request and supplies an expanded packet for rereview.

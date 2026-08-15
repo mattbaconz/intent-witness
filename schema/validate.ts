@@ -7,7 +7,7 @@ import type {
   ReviewResult,
   ValidationResult,
 } from "./types.ts";
-import { normalizeKeys, normalizeReviewShape } from "./normalize.ts";
+import { normalizeReviewShape } from "./normalize.ts";
 import { comparisonResultSchema, reviewArtifactSchema, reviewRequestSchema, reviewResultSchema } from "./zod.ts";
 
 function zodIssues(error: { issues: { path: PropertyKey[]; message: string }[] }): string[] {
@@ -36,7 +36,7 @@ export function parseReviewResult(input: unknown): ReviewResult {
 }
 
 export function validateComparisonResult(input: unknown): ValidationResult<ComparisonResult> {
-  const normalized = normalizeKeys(input);
+  const normalized = normalizeReviewShape(input);
   const parsed = comparisonResultSchema.safeParse(normalized);
   if (!parsed.success) {
     return { ok: false, errors: zodIssues(parsed.error) };

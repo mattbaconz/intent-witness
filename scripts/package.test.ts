@@ -12,6 +12,9 @@ describe("publishable package", () => {
     const pkg = JSON.parse(readFileSync(join(root, "package.json"), "utf8"));
     expect(pkg.bin["intent-witness"]).toBe("bin/intent-witness.mjs");
     expect(pkg.exports["./schema"].import).toBe("./dist/schema/index.js");
+    for (const name of ["review-result", "review-request", "review-artifact"]) {
+      expect(pkg.exports[`./schema/${name}.schema.json`]).toBe(`./schema/${name}.schema.json`);
+    }
     expect(existsSync(join(root, pkg.bin["intent-witness"]))).toBe(true);
   });
 
@@ -24,8 +27,8 @@ describe("publishable package", () => {
       const packageFile = join(dir, "mattbaconz-intent-witness-0.1.0-alpha.1.tgz");
       execFileSync(process.execPath, [npmCli, "init", "-y"], { cwd: dir, encoding: "utf8" });
       execFileSync(process.execPath, [npmCli, "install", "--ignore-scripts", packageFile], { cwd: dir, encoding: "utf8" });
-      const program = "import { validateComparisonResult, validateReviewResult } from '@mattbaconz/intent-witness/schema'; const runtime = validateComparisonResult({ priorReviewId: 'r', resolvedFindingIds: ['f'], unresolvedFindingIds: ['f'], regressions: [], improvements: [], verdict: 'REVISE', nextAction: 'Fix it.' }); console.log(typeof validateReviewResult, runtime.ok);";
-      expect(execFileSync(process.execPath, ["--input-type=module", "--eval", program], { cwd: dir, encoding: "utf8" }).trim()).toBe("function false");
+      const program = "import { readFileSync } from 'node:fs'; import { validateComparisonResult, validateReviewResult } from '@mattbaconz/intent-witness/schema'; const runtime = validateComparisonResult({ priorReviewId: 'r', resolvedFindingIds: ['f'], unresolvedFindingIds: ['f'], regressions: [], improvements: [], verdict: 'REVISE', nextAction: 'Fix it.' }); const names = ['review-result', 'review-request', 'review-artifact']; const schemas = names.map((name) => JSON.parse(readFileSync(new URL(import.meta.resolve(`@mattbaconz/intent-witness/schema/${name}.schema.json`)), 'utf8'))); console.log(typeof validateReviewResult, runtime.ok, schemas.every((schema) => schema.$schema.endsWith('2020-12/schema')));";
+      expect(execFileSync(process.execPath, ["--input-type=module", "--eval", program], { cwd: dir, encoding: "utf8" }).trim()).toBe("function false true");
     } finally { rmSync(dir, { recursive: true, force: true }); }
   }, 60_000);
 
@@ -41,6 +44,11 @@ describe("publishable package", () => {
     if (!npmCli) throw new Error("npm_execpath is required to inspect npm pack content");
     const packed = JSON.parse(execFileSync(process.execPath, [npmCli, "pack", "--dry-run", "--json"], { cwd: root, encoding: "utf8" }));
     const paths = packed[0].files.map((file: { path: string }) => file.path);
+    expect(paths).toEqual(expect.arrayContaining([
+      "schema/review-result.schema.json",
+      "schema/review-request.schema.json",
+      "schema/review-artifact.schema.json",
+    ]));
     expect(paths.some((path: string) => /intent-witness-vault|\.cursor|\.intent-witness|\.test\.|evals\/|(?:^|\/)\.env(?:\.|$)|node_modules\/|\.superpowers\/|\.worktrees\/|(?:^|\/)dist\/(?!schema\/)/.test(path))).toBe(false);
-  });
+  }, 60_000);
 });

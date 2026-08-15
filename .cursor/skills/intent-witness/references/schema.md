@@ -28,7 +28,7 @@ findings:
     revision_constraint: "Optional instruction preventing a shallow fix"
 ```
 
-Evidence `reference` maps to the kind-specific field (`path`, `file`, `route`, `viewport`, `source`, or `selector`). Prefer also filling that field explicitly.
+Evidence `reference` is accepted by both the runtime validator and generated JSON Schemas. The runtime normalizes it to the kind-specific field (`path`, `file`, `route`, `viewport`, `source`, or `selector`). Prefer also filling that field explicitly. Unrelated fields are rejected rather than silently discarded.
 
 ## Comparison (rereview)
 
@@ -49,7 +49,7 @@ A comparison review may include this block in addition to a full `ReviewResult`.
 
 - `REVISE` requires ≥1 material finding.
 - Every material finding requires evidence.
-- Do not create more than 5 material findings unless grouping is impossible.
+- Do not create more than 5 material findings.
 - Use `INSUFFICIENT_EVIDENCE` instead of inventing facts.
 - `alternatives_required: true` only when deepest problem is `information_architecture` or `interaction`.
 - If alternatives are required, constraints must force structural distance.

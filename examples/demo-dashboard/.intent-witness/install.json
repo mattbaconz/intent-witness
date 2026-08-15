@@ -3,7 +3,7 @@
   "packageVersion": "0.1.0-alpha.1",
   "adapter": "cursor",
   "adapterVersion": "0.1",
-  "installedAt": "2026-08-15T18:00:50.087Z",
+  "installedAt": "2026-08-15T18:00:50.513Z",
   "managedFiles": {
     ".cursor/skills/intent-witness/references/convergence.md": "69580a92cfe7663d46e5739dda8202fc6205f09b522c04a3ea2717706c35ee2c",
     ".cursor/skills/intent-witness/references/design-reasoning.md": "f44ca2041943f89ed8adbdc11a560a7cc63a6f1c8426b4c795e10e52af01e8cb",

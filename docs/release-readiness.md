@@ -15,11 +15,12 @@ npm run evals:validate
 npm run docs:check
 npm run package:check
 node scripts/install-cursor.mjs --check
+node scripts/install-cursor.mjs --check examples/demo-dashboard
 ```
 
 Also clean-install and check the package in a temporary project, then run `npm ci` and `npm run build` from `examples/demo-dashboard`.
 
-The automated audit verifies the canonical reviewer remains read-only, requests contain captured evidence, the installed copy matches canonical source, fixture review artifacts validate, prompt injection remains untrusted evidence, RelayOps source matches the task baseline, and pack contents exclude project-private, generated, and local-state material.
+The automated audit verifies the canonical reviewer remains read-only, requests contain captured evidence, both repository-root and RelayOps installed copies match canonical source, fixture review artifacts validate, prompt injection remains untrusted evidence, RelayOps source matches the task baseline, and pack contents exclude project-private, generated, and local-state material.
 
 RelayOps dogfood files in `evals/fixtures/relayops-dogfood/` are deterministic protocol fixtures. They are not proof of actual Cursor behavior or benchmark results.
 

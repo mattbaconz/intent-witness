@@ -7,6 +7,11 @@
 
 [changed]
 - Review requests now require at least one captured evidence item before validation.
+- Generated JSON Schemas now match runtime rules for comparison requests, material-finding limits, strict evidence inputs, and documented evidence-reference normalization.
+
+[fixed]
+- Hardened installer ownership and path containment across managed files, local state, backups, symlinks, and junctions.
+- Published and exported all three generated JSON Schemas, and audited both canonical installed copies.
 
 ## 0.1.0-alpha.1
 

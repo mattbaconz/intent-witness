@@ -28,7 +28,7 @@ findings:
     revision_constraint: "Optional instruction preventing a shallow fix"
 ```
 
-Evidence `reference` maps to the kind-specific field (`path`, `file`, `route`, `viewport`, `source`, or `selector`). Prefer also filling that field explicitly.
+Evidence `reference` is accepted by both the runtime validator and generated JSON Schemas. The runtime normalizes it to the kind-specific field (`path`, `file`, `route`, `viewport`, `source`, or `selector`). Prefer also filling that field explicitly. Unrelated fields are rejected rather than silently discarded.
 
 ## Comparison (rereview)
 
@@ -49,8 +49,11 @@ A comparison review may include this block in addition to a full `ReviewResult`.
 
 - `REVISE` requires ≥1 material finding.
 - Every material finding requires evidence.
-- Do not create more than 5 material findings unless grouping is impossible.
+- Do not create more than 5 material findings.
 - Use `INSUFFICIENT_EVIDENCE` instead of inventing facts.
 - `alternatives_required: true` only when deepest problem is `information_architecture` or `interaction`.
 - If alternatives are required, constraints must force structural distance.
 - Do not emit a universal numeric quality or slop score.
+# JSON Schema limits
+
+The generated JSON Schemas enforce representable structural and conditional rules, including material evidence, verdict/finding constraints, structural-alternative bounds, and per-array uniqueness. JSON Schema cannot express cross-array set relationships such as resolved versus unresolved finding IDs being disjoint (or regression IDs being globally unique). Consumers must run the published `validateComparisonResult` runtime validator for those rules; the generated artifact schema carries this limitation in `$comment`.

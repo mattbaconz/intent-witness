@@ -26,6 +26,8 @@ jobs:
       - run: npm run evals:validate
       - run: npm run docs:check
       - run: npm run package:check
+      - run: node scripts/install-cursor.mjs --check .
+      - run: node scripts/install-cursor.mjs --check examples/demo-dashboard
       - run: npm ci
         working-directory: examples/demo-dashboard
       - run: npm run build

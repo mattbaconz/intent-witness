@@ -18,6 +18,9 @@
       "types": "./dist/schema/index.d.ts",
       "import": "./dist/schema/index.js"
     },
+    "./schema/review-result.schema.json": "./schema/review-result.schema.json",
+    "./schema/review-request.schema.json": "./schema/review-request.schema.json",
+    "./schema/review-artifact.schema.json": "./schema/review-artifact.schema.json",
     "./package.json": "./package.json"
   },
   "files": [
@@ -27,13 +30,14 @@
     "adapters/cursor/",
     "templates/",
     "dist/schema/",
+    "schema/*.schema.json",
     "README.md",
     "LICENSE",
     "docs/"
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/mattbaconz/intent-witness.git"
+    "url": "git+https://github.com/mattbaconz/intent-witness.git"
   },
   "scripts": {
     "test": "vitest run",
@@ -58,5 +62,16 @@
   "dependencies": {
     "yaml": "^2.8.1",
     "zod": "^4.0.17"
-  }
+  },
+  "main": "index.js",
+  "directories": {
+    "doc": "docs",
+    "example": "examples"
+  },
+  "keywords": [],
+  "author": "",
+  "bugs": {
+    "url": "https://github.com/mattbaconz/intent-witness/issues"
+  },
+  "homepage": "https://github.com/mattbaconz/intent-witness#readme"
 }

@@ -121,13 +121,32 @@
                         },
                         "fact": {
                           "type": "string"
+                        },
+                        "reference": {
+                          "type": "string",
+                          "minLength": 1
                         }
                       },
                       "required": [
-                        "kind",
-                        "path"
+                        "kind"
                       ],
-                      "additionalProperties": false
+                      "additionalProperties": false,
+                      "allOf": [
+                        {
+                          "anyOf": [
+                            {
+                              "required": [
+                                "reference"
+                              ]
+                            },
+                            {
+                              "required": [
+                                "path"
+                              ]
+                            }
+                          ]
+                        }
+                      ]
                     },
                     {
                       "type": "object",
@@ -142,13 +161,32 @@
                         "fact": {
                           "type": "string",
                           "minLength": 1
+                        },
+                        "reference": {
+                          "type": "string",
+                          "minLength": 1
                         }
                       },
                       "required": [
-                        "kind",
-                        "fact"
+                        "kind"
                       ],
-                      "additionalProperties": false
+                      "additionalProperties": false,
+                      "allOf": [
+                        {
+                          "anyOf": [
+                            {
+                              "required": [
+                                "reference"
+                              ]
+                            },
+                            {
+                              "required": [
+                                "fact"
+                              ]
+                            }
+                          ]
+                        }
+                      ]
                     },
                     {
                       "type": "object",
@@ -167,14 +205,33 @@
                         "fact": {
                           "type": "string",
                           "minLength": 1
+                        },
+                        "reference": {
+                          "type": "string",
+                          "minLength": 1
                         }
                       },
                       "required": [
-                        "kind",
-                        "file",
-                        "fact"
+                        "kind"
                       ],
-                      "additionalProperties": false
+                      "additionalProperties": false,
+                      "allOf": [
+                        {
+                          "anyOf": [
+                            {
+                              "required": [
+                                "reference"
+                              ]
+                            },
+                            {
+                              "required": [
+                                "file",
+                                "fact"
+                              ]
+                            }
+                          ]
+                        }
+                      ]
                     },
                     {
                       "type": "object",
@@ -188,6 +245,7 @@
                           "minLength": 1
                         },
                         "steps": {
+                          "default": [],
                           "type": "array",
                           "items": {
                             "type": "string"
@@ -196,15 +254,34 @@
                         "fact": {
                           "type": "string",
                           "minLength": 1
+                        },
+                        "reference": {
+                          "type": "string",
+                          "minLength": 1
                         }
                       },
                       "required": [
                         "kind",
-                        "route",
-                        "steps",
-                        "fact"
+                        "steps"
                       ],
-                      "additionalProperties": false
+                      "additionalProperties": false,
+                      "allOf": [
+                        {
+                          "anyOf": [
+                            {
+                              "required": [
+                                "reference"
+                              ]
+                            },
+                            {
+                              "required": [
+                                "route",
+                                "fact"
+                              ]
+                            }
+                          ]
+                        }
+                      ]
                     },
                     {
                       "type": "object",
@@ -220,14 +297,33 @@
                         "fact": {
                           "type": "string",
                           "minLength": 1
+                        },
+                        "reference": {
+                          "type": "string",
+                          "minLength": 1
                         }
                       },
                       "required": [
-                        "kind",
-                        "viewport",
-                        "fact"
+                        "kind"
                       ],
-                      "additionalProperties": false
+                      "additionalProperties": false,
+                      "allOf": [
+                        {
+                          "anyOf": [
+                            {
+                              "required": [
+                                "reference"
+                              ]
+                            },
+                            {
+                              "required": [
+                                "viewport",
+                                "fact"
+                              ]
+                            }
+                          ]
+                        }
+                      ]
                     },
                     {
                       "type": "object",
@@ -243,14 +339,33 @@
                         "fact": {
                           "type": "string",
                           "minLength": 1
+                        },
+                        "reference": {
+                          "type": "string",
+                          "minLength": 1
                         }
                       },
                       "required": [
-                        "kind",
-                        "source",
-                        "fact"
+                        "kind"
                       ],
-                      "additionalProperties": false
+                      "additionalProperties": false,
+                      "allOf": [
+                        {
+                          "anyOf": [
+                            {
+                              "required": [
+                                "reference"
+                              ]
+                            },
+                            {
+                              "required": [
+                                "source",
+                                "fact"
+                              ]
+                            }
+                          ]
+                        }
+                      ]
                     }
                   ]
                 }
@@ -315,7 +430,19 @@
                 }
               }
             ]
-          }
+          },
+          "contains": {
+            "properties": {
+              "severity": {
+                "const": "material"
+              }
+            },
+            "required": [
+              "severity"
+            ]
+          },
+          "minContains": 0,
+          "maxContains": 5
         },
         "alternativesRequired": {
           "type": "boolean"
@@ -534,13 +661,32 @@
                         },
                         "fact": {
                           "type": "string"
+                        },
+                        "reference": {
+                          "type": "string",
+                          "minLength": 1
                         }
                       },
                       "required": [
-                        "kind",
-                        "path"
+                        "kind"
                       ],
-                      "additionalProperties": false
+                      "additionalProperties": false,
+                      "allOf": [
+                        {
+                          "anyOf": [
+                            {
+                              "required": [
+                                "reference"
+                              ]
+                            },
+                            {
+                              "required": [
+                                "path"
+                              ]
+                            }
+                          ]
+                        }
+                      ]
                     },
                     {
                       "type": "object",
@@ -555,13 +701,32 @@
                         "fact": {
                           "type": "string",
                           "minLength": 1
+                        },
+                        "reference": {
+                          "type": "string",
+                          "minLength": 1
                         }
                       },
                       "required": [
-                        "kind",
-                        "fact"
+                        "kind"
                       ],
-                      "additionalProperties": false
+                      "additionalProperties": false,
+                      "allOf": [
+                        {
+                          "anyOf": [
+                            {
+                              "required": [
+                                "reference"
+                              ]
+                            },
+                            {
+                              "required": [
+                                "fact"
+                              ]
+                            }
+                          ]
+                        }
+                      ]
                     },
                     {
                       "type": "object",
@@ -580,14 +745,33 @@
                         "fact": {
                           "type": "string",
                           "minLength": 1
+                        },
+                        "reference": {
+                          "type": "string",
+                          "minLength": 1
                         }
                       },
                       "required": [
-                        "kind",
-                        "file",
-                        "fact"
+                        "kind"
                       ],
-                      "additionalProperties": false
+                      "additionalProperties": false,
+                      "allOf": [
+                        {
+                          "anyOf": [
+                            {
+                              "required": [
+                                "reference"
+                              ]
+                            },
+                            {
+                              "required": [
+                                "file",
+                                "fact"
+                              ]
+                            }
+                          ]
+                        }
+                      ]
                     },
                     {
                       "type": "object",
@@ -601,6 +785,7 @@
                           "minLength": 1
                         },
                         "steps": {
+                          "default": [],
                           "type": "array",
                           "items": {
                             "type": "string"
@@ -609,15 +794,34 @@
                         "fact": {
                           "type": "string",
                           "minLength": 1
+                        },
+                        "reference": {
+                          "type": "string",
+                          "minLength": 1
                         }
                       },
                       "required": [
                         "kind",
-                        "route",
-                        "steps",
-                        "fact"
+                        "steps"
                       ],
-                      "additionalProperties": false
+                      "additionalProperties": false,
+                      "allOf": [
+                        {
+                          "anyOf": [
+                            {
+                              "required": [
+                                "reference"
+                              ]
+                            },
+                            {
+                              "required": [
+                                "route",
+                                "fact"
+                              ]
+                            }
+                          ]
+                        }
+                      ]
                     },
                     {
                       "type": "object",
@@ -633,14 +837,33 @@
                         "fact": {
                           "type": "string",
                           "minLength": 1
+                        },
+                        "reference": {
+                          "type": "string",
+                          "minLength": 1
                         }
                       },
                       "required": [
-                        "kind",
-                        "viewport",
-                        "fact"
+                        "kind"
                       ],
-                      "additionalProperties": false
+                      "additionalProperties": false,
+                      "allOf": [
+                        {
+                          "anyOf": [
+                            {
+                              "required": [
+                                "reference"
+                              ]
+                            },
+                            {
+                              "required": [
+                                "viewport",
+                                "fact"
+                              ]
+                            }
+                          ]
+                        }
+                      ]
                     },
                     {
                       "type": "object",
@@ -656,14 +879,33 @@
                         "fact": {
                           "type": "string",
                           "minLength": 1
+                        },
+                        "reference": {
+                          "type": "string",
+                          "minLength": 1
                         }
                       },
                       "required": [
-                        "kind",
-                        "source",
-                        "fact"
+                        "kind"
                       ],
-                      "additionalProperties": false
+                      "additionalProperties": false,
+                      "allOf": [
+                        {
+                          "anyOf": [
+                            {
+                              "required": [
+                                "reference"
+                              ]
+                            },
+                            {
+                              "required": [
+                                "source",
+                                "fact"
+                              ]
+                            }
+                          ]
+                        }
+                      ]
                     }
                   ]
                 }
@@ -728,7 +970,19 @@
                 }
               }
             ]
-          }
+          },
+          "contains": {
+            "properties": {
+              "severity": {
+                "const": "material"
+              }
+            },
+            "required": [
+              "severity"
+            ]
+          },
+          "minContains": 0,
+          "maxContains": 5
         },
         "improvements": {
           "type": "array",

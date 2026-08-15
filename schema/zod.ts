@@ -18,7 +18,7 @@ export const reviewVerdictSchema = z.enum([
 export const reviewModeSchema = z.enum(["initial", "comparison"]);
 export const comparisonVerdictSchema = z.enum(["PASS", "PASS_WITH_NOTES", "REVISE"]);
 
-const screenshotEvidenceSchema = z.object({
+const screenshotEvidenceSchema = z.strictObject({
   kind: z.literal("screenshot"),
   path: z.string().min(1),
   region: z.string().optional(),
@@ -26,33 +26,33 @@ const screenshotEvidenceSchema = z.object({
   fact: z.string().optional(),
 });
 
-const domEvidenceSchema = z.object({
+const domEvidenceSchema = z.strictObject({
   kind: z.literal("dom"),
   selector: z.string().optional(),
   fact: z.string().min(1),
 });
 
-const sourceEvidenceSchema = z.object({
+const sourceEvidenceSchema = z.strictObject({
   kind: z.literal("source"),
   file: z.string().min(1),
   line: z.number().optional(),
   fact: z.string().min(1),
 });
 
-const interactionEvidenceSchema = z.object({
+const interactionEvidenceSchema = z.strictObject({
   kind: z.literal("interaction"),
   route: z.string().min(1),
-  steps: z.array(z.string()),
+  steps: z.array(z.string()).default([]),
   fact: z.string().min(1),
 });
 
-const responsiveEvidenceSchema = z.object({
+const responsiveEvidenceSchema = z.strictObject({
   kind: z.literal("responsive"),
   viewport: z.string().min(1),
   fact: z.string().min(1),
 });
 
-const designMemoryEvidenceSchema = z.object({
+const designMemoryEvidenceSchema = z.strictObject({
   kind: z.literal("design-memory"),
   source: z.string().min(1),
   fact: z.string().min(1),
@@ -67,7 +67,7 @@ export const evidenceSchema = z.discriminatedUnion("kind", [
   designMemoryEvidenceSchema,
 ]);
 
-export const reviewFindingSchema = z.object({
+export const reviewFindingSchema = z.strictObject({
   id: z.string().min(1),
   title: z.string().min(1),
   observation: z.string().min(1),
@@ -81,7 +81,7 @@ export const reviewFindingSchema = z.object({
   if (finding.severity === "material" && finding.evidence.length === 0) context.addIssue({ code: "custom", path: ["evidence"], message: `Material finding ${finding.id} requires at least one evidence item` });
 });
 
-export const evidenceRequestSchema = z.object({
+export const evidenceRequestSchema = z.strictObject({
   id: z.string().min(1),
   request: z.string().trim().min(1),
   reason: z.string().trim().min(1),
@@ -91,7 +91,7 @@ const structuralDepths = new Set(["information_architecture", "interaction"]);
 const materialFindings = (findings: z.infer<typeof reviewFindingSchema>[]) =>
   findings.filter((finding) => finding.severity === "material");
 
-export const reviewResultSchema = z.object({
+export const reviewResultSchema = z.strictObject({
   protocolVersion: z.literal("0.1"),
   schemaVersion: z.literal("0.1"),
   verdict: reviewVerdictSchema,
@@ -114,7 +114,7 @@ export const reviewResultSchema = z.object({
   }
 });
 
-export const comparisonResultSchema = z.object({
+export const comparisonResultSchema = z.strictObject({
   priorReviewId: z.string().min(1),
   resolvedFindingIds: z.array(z.string()),
   unresolvedFindingIds: z.array(z.string()),
@@ -125,12 +125,13 @@ export const comparisonResultSchema = z.object({
 }).superRefine((comparison, context) => {
   const resolved = new Set(comparison.resolvedFindingIds);
   const unresolved = new Set(comparison.unresolvedFindingIds);
+  if (materialFindings(comparison.regressions).length > 5) context.addIssue({ code: "custom", path: ["regressions"], message: "Comparison may not return more than 5 material regressions" });
   const allIds = [...comparison.resolvedFindingIds, ...comparison.unresolvedFindingIds, ...comparison.regressions.map((finding) => finding.id)];
   if (new Set(allIds).size !== allIds.length) context.addIssue({ code: "custom", path: ["resolvedFindingIds"], message: "Comparison finding IDs must be unique" });
   if ([...resolved].some((id) => unresolved.has(id))) context.addIssue({ code: "custom", path: ["unresolvedFindingIds"], message: "Resolved and unresolved finding IDs must be disjoint" });
 });
 
-export const productIntentSchema = z.object({
+export const productIntentSchema = z.strictObject({
   productName: z.string().optional(),
   domain: z.string().min(1),
   targetUsers: z.array(z.string()),
@@ -143,12 +144,12 @@ export const productIntentSchema = z.object({
   explicitAvoid: z.array(z.string()).optional(),
 });
 
-export const reviewRequestSchema = z.object({
+export const reviewRequestSchema = z.strictObject({
   protocolVersion: z.literal("0.1"),
   schemaVersion: z.literal("0.1"),
   reviewId: z.string().min(1),
   mode: reviewModeSchema,
-  target: z.object({ route: z.string().min(1), baseUrl: z.string().url(), changedFiles: z.array(z.string().min(1)) }),
+  target: z.strictObject({ route: z.string().min(1), baseUrl: z.string().url(), changedFiles: z.array(z.string().min(1)) }),
   productIntent: productIntentSchema,
   constraints: z.array(z.string().min(1)),
   capturedEvidence: z.array(evidenceSchema).min(1),
@@ -157,10 +158,10 @@ export const reviewRequestSchema = z.object({
   if (request.mode === "comparison" && !request.priorReviewId) context.addIssue({ code: "custom", path: ["priorReviewId"], message: "comparison mode requires a priorReviewId" });
 });
 
-export const reviewArtifactSchema = z.object({
+export const reviewArtifactSchema = z.strictObject({
   protocolVersion: z.literal("0.1"),
   schemaVersion: z.literal("0.1"),
-  metadata: z.object({ reviewId: z.string().min(1), createdAt: z.string().datetime(), mode: reviewModeSchema }),
+  metadata: z.strictObject({ reviewId: z.string().min(1), createdAt: z.string().datetime(), mode: reviewModeSchema }),
   result: reviewResultSchema,
   comparison: comparisonResultSchema.optional(),
 });

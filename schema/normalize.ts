@@ -66,25 +66,31 @@ export function normalizeEvidence(raw: Record<string, unknown>): Record<string, 
     evidence.steps = [];
   }
 
+  delete evidence.reference;
+
   return evidence;
 }
 
+const EVIDENCE_KINDS = new Set([
+  "screenshot",
+  "dom",
+  "source",
+  "interaction",
+  "responsive",
+  "design-memory",
+]);
+
+function normalizeEvidenceDeep(value: unknown): unknown {
+  if (Array.isArray(value)) return value.map(normalizeEvidenceDeep);
+  if (!value || typeof value !== "object") return value;
+  const normalized = Object.fromEntries(
+    Object.entries(value as Record<string, unknown>).map(([key, nested]) => [key, normalizeEvidenceDeep(nested)]),
+  );
+  return typeof normalized.kind === "string" && EVIDENCE_KINDS.has(normalized.kind)
+    ? normalizeEvidence(normalized)
+    : normalized;
+}
+
 export function normalizeReviewShape(value: unknown): unknown {
-  const normalized = normalizeKeys(value);
-  if (!normalized || typeof normalized !== "object") return normalized;
-  const review = normalized as Record<string, unknown>;
-  if (Array.isArray(review.findings)) {
-    review.findings = review.findings.map((finding) => {
-      if (!finding || typeof finding !== "object") return finding;
-      const next = { ...(finding as Record<string, unknown>) };
-      if (Array.isArray(next.evidence)) {
-        next.evidence = next.evidence.map((item) => {
-          if (!item || typeof item !== "object") return item;
-          return normalizeEvidence(item as Record<string, unknown>);
-        });
-      }
-      return next;
-    });
-  }
-  return review;
+  return normalizeEvidenceDeep(normalizeKeys(value));
 }
