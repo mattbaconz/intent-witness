@@ -255,7 +255,28 @@
           "severity",
           "confidence"
         ],
-        "additionalProperties": false
+        "additionalProperties": false,
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "severity": {
+                  "const": "material"
+                }
+              },
+              "required": [
+                "severity"
+              ]
+            },
+            "then": {
+              "properties": {
+                "evidence": {
+                  "minItems": 1
+                }
+              }
+            }
+          }
+        ]
       }
     },
     "alternativesRequired": {
@@ -311,5 +332,102 @@
     "alternativesRequired",
     "overallConfidence"
   ],
-  "additionalProperties": false
+  "additionalProperties": false,
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "verdict": {
+            "const": "REVISE"
+          }
+        },
+        "required": [
+          "verdict"
+        ]
+      },
+      "then": {
+        "properties": {
+          "findings": {
+            "contains": {
+              "properties": {
+                "severity": {
+                  "const": "material"
+                }
+              },
+              "required": [
+                "severity"
+              ]
+            },
+            "minContains": 1
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "verdict": {
+            "enum": [
+              "PASS",
+              "PASS_WITH_NOTES"
+            ]
+          }
+        },
+        "required": [
+          "verdict"
+        ]
+      },
+      "then": {
+        "properties": {
+          "findings": {
+            "not": {
+              "contains": {
+                "properties": {
+                  "severity": {
+                    "const": "material"
+                  }
+                },
+                "required": [
+                  "severity"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "alternativesRequired": {
+            "const": true
+          }
+        },
+        "required": [
+          "alternativesRequired"
+        ]
+      },
+      "then": {
+        "required": [
+          "alternativeConstraints"
+        ],
+        "properties": {
+          "deepestProblem": {
+            "enum": [
+              "information_architecture",
+              "interaction"
+            ]
+          },
+          "alternativeConstraints": {
+            "minItems": 2,
+            "maxItems": 3,
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        }
+      }
+    }
+  ]
 }

@@ -14,7 +14,10 @@
     "intent-witness": "bin/intent-witness.mjs"
   },
   "exports": {
-    "./schema": "./schema/index.ts",
+    "./schema": {
+      "types": "./dist/schema/index.d.ts",
+      "import": "./dist/schema/index.js"
+    },
     "./package.json": "./package.json"
   },
   "files": [
@@ -23,12 +26,7 @@
     "skill/intent-witness/",
     "adapters/cursor/",
     "templates/",
-    "schema/index.ts",
-    "schema/types.ts",
-    "schema/zod.ts",
-    "schema/validate.ts",
-    "schema/normalize.ts",
-    "schema/*.schema.json",
+    "dist/schema/",
     "README.md",
     "LICENSE",
     "docs/"
@@ -40,16 +38,19 @@
   "scripts": {
     "test": "vitest run",
     "test:watch": "vitest",
+    "build": "tsc -p tsconfig.build.json",
     "typecheck": "tsc --noEmit",
     "schema:generate": "tsx scripts/generate-schema.ts",
     "schema:check": "tsx scripts/generate-schema.ts --check",
     "evals:validate": "tsx evals/run.ts --validate",
     "docs:check": "node scripts/check-docs.mjs",
     "package:check": "npm pack --dry-run --json",
-    "install-cursor": "node scripts/install-cursor.mjs"
+    "install-cursor": "node scripts/install-cursor.mjs",
+    "prepack": "npm run build"
   },
   "devDependencies": {
     "@types/node": "^22.20.1",
+    "ajv": "^8.20.0",
     "tsx": "^4.23.12",
     "typescript": "^5.9.2",
     "vitest": "^3.2.4"

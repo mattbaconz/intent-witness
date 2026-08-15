@@ -4,11 +4,47 @@ import { z } from "zod";
 import { reviewArtifactSchema, reviewRequestSchema, reviewResultSchema } from "../schema/zod.ts";
 
 const root = resolve(import.meta.dirname, "..");
-const schemas: Record<string, object> = {
+type JsonObject = Record<string, any>;
+
+function applyReviewResultRules(schema: JsonObject) {
+  const properties = schema.properties as JsonObject;
+  const finding = properties.findings.items as JsonObject;
+  finding.allOf = [...(finding.allOf ?? []), {
+    if: { properties: { severity: { const: "material" } }, required: ["severity"] },
+    then: { properties: { evidence: { minItems: 1 } } },
+  }];
+  schema.allOf = [...(schema.allOf ?? []),
+    {
+      if: { properties: { verdict: { const: "REVISE" } }, required: ["verdict"] },
+      then: { properties: { findings: { contains: { properties: { severity: { const: "material" } }, required: ["severity"] }, minContains: 1 } } },
+    },
+    {
+      if: { properties: { verdict: { enum: ["PASS", "PASS_WITH_NOTES"] } }, required: ["verdict"] },
+      then: { properties: { findings: { not: { contains: { properties: { severity: { const: "material" } }, required: ["severity"] } } } } },
+    },
+    {
+      if: { properties: { alternativesRequired: { const: true } }, required: ["alternativesRequired"] },
+      then: { required: ["alternativeConstraints"], properties: { deepestProblem: { enum: ["information_architecture", "interaction"] }, alternativeConstraints: { minItems: 2, maxItems: 3, items: { type: "string", minLength: 1 } } } },
+    },
+  ];
+}
+
+function applyComparisonRules(schema: JsonObject) {
+  const properties = schema.properties as JsonObject;
+  properties.resolvedFindingIds.uniqueItems = true;
+  properties.unresolvedFindingIds.uniqueItems = true;
+}
+
+const schemas: Record<string, JsonObject> = {
   "review-result.schema.json": z.toJSONSchema(reviewResultSchema),
   "review-request.schema.json": z.toJSONSchema(reviewRequestSchema),
   "review-artifact.schema.json": z.toJSONSchema(reviewArtifactSchema),
 };
+applyReviewResultRules(schemas["review-result.schema.json"]);
+const artifact = schemas["review-artifact.schema.json"];
+applyReviewResultRules(artifact.properties.result);
+applyComparisonRules(artifact.properties.comparison);
+artifact.$comment = "JSON Schema cannot express that resolvedFindingIds and unresolvedFindingIds are disjoint, or that regression IDs are globally unique; validate those cross-array rules with the published runtime validator.";
 const check = process.argv.includes("--check");
 const drifted: string[] = [];
 for (const [name, schema] of Object.entries(schemas)) {

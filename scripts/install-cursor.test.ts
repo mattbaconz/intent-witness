@@ -1,6 +1,6 @@
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { join } from "node:path";
+import { dirname, join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { checkCursorInstall, installCursor } from "./install-cursor.mjs";
 
@@ -161,6 +161,23 @@ describe("install-cursor", () => {
       const backup = readdirSync(join(dir, ".intent-witness", "backups"))[0]!;
       expect(readFileSync(join(dir, ".intent-witness", "backups", backup, "skills", "intent-witness", "SKILL.md"), "utf8")).toBe("# locally modified\n");
       expect(checkCursorInstall(dir)).toEqual([]);
+    } finally { rmSync(dir, { recursive: true, force: true }); }
+  });
+
+  it.each([
+    ["partial", { packageVersion: "0.1.0-alpha.1", adapterVersion: "0.1" }],
+    ["forged", { packageVersion: "0.1.0-alpha.1", adapterVersion: "0.1", installedAt: "not-a-date", managedFiles: {} }],
+    ["wrong package", { packageVersion: "0.0.0", adapterVersion: "0.1", installedAt: "2026-08-15T00:00:00.000Z", managedFiles: {} }],
+  ])("treats a %s manifest as an unmanaged conflict", (_name, manifest) => {
+    const dir = mkdtempSync(join(tmpdir(), "intent-witness-install-"));
+    try {
+      const conflict = join(dir, ".cursor", "agents", "intent-witness-reviewer.md");
+      mkdirSync(dirname(conflict), { recursive: true });
+      mkdirSync(join(dir, ".intent-witness"), { recursive: true });
+      writeFileSync(conflict, "# user agent\n");
+      writeFileSync(join(dir, ".intent-witness", "install.json"), JSON.stringify(manifest));
+      expect(() => installCursor(dir)).toThrow(/unmanaged/i);
+      expect(checkCursorInstall(dir).join(" ")).toMatch(/install\.json.*(missing|invalid|package|installedAt|managedFiles)/i);
     } finally { rmSync(dir, { recursive: true, force: true }); }
   });
 });

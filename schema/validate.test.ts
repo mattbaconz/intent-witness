@@ -151,6 +151,16 @@ describe("validateReviewResult", () => {
     if (!result.ok) expect(result.errors.join(" ")).toMatch(/PASS.*material/i);
   });
 
+  it("rejects material findings from PASS_WITH_NOTES verdicts", () => {
+    const result = validateReviewResult({ ...validRevise, verdict: "PASS_WITH_NOTES" });
+    expect(result.ok).toBe(false);
+  });
+
+  it.each([[1, false], [3, true], [4, false]])("accepts structural alternative constraint count %i only at valid bounds", (count, expected) => {
+    const result = validateReviewResult({ ...validRevise, alternative_constraints: Array.from({ length: count }, (_, index) => `Constraint ${index + 1}`) });
+    expect(result.ok).toBe(expected);
+  });
+
   it("rejects an invalid depth", () => {
     const result = validateReviewResult({
       ...validRevise,

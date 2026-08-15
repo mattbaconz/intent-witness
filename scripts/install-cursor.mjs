@@ -23,7 +23,25 @@ function targetPath(target, relativePath) { return join(target, ...relativePath.
 function backupRelativePath(relativePath) { return relativePath.replace(/^\.cursor\//, ""); }
 function copyExisting(target, stamp, relativePath) { const source = targetPath(target, relativePath); if (existsSync(source)) copyFile(source, join(target, ".intent-witness", "backups", stamp, ...backupRelativePath(relativePath).split("/"))); }
 function copyExistingDir(target, stamp, relativePath) { const source = targetPath(target, relativePath); if (existsSync(source)) copyDir(source, join(target, ".intent-witness", "backups", stamp, ...backupRelativePath(relativePath).split("/"))); }
-function validManifest(manifest) { return Boolean(manifest && manifest.adapterVersion === ADAPTER_VERSION && manifest.managedFiles && typeof manifest.managedFiles === "object"); }
+function manifestErrors(manifest) {
+  const expected = sourceManifest();
+  if (!manifest || typeof manifest !== "object" || Array.isArray(manifest)) return ["missing or invalid JSON"];
+  const errors = [];
+  if (manifest.packageVersion !== PACKAGE.version) errors.push("packageVersion must match this package");
+  if (manifest.adapterVersion !== ADAPTER_VERSION) errors.push("adapterVersion must be 0.1");
+  if (typeof manifest.installedAt !== "string" || Number.isNaN(Date.parse(manifest.installedAt)) || new Date(manifest.installedAt).toISOString() !== manifest.installedAt) errors.push("installedAt must be an ISO timestamp");
+  if (!manifest.managedFiles || typeof manifest.managedFiles !== "object" || Array.isArray(manifest.managedFiles)) errors.push("managedFiles must be an object");
+  else {
+    const actualKeys = Object.keys(manifest.managedFiles).sort(); const expectedKeys = Object.keys(expected).sort();
+    if (actualKeys.length !== expectedKeys.length || actualKeys.some((key, index) => key !== expectedKeys[index])) errors.push("managedFiles must contain exactly the managed file keys");
+    for (const key of expectedKeys) {
+      const value = manifest.managedFiles[key];
+      if (typeof value !== "string" || !/^[a-f0-9]{64}$/.test(value)) errors.push(`managedFiles.${key} must be a SHA-256 hash`);
+    }
+  }
+  return errors;
+}
+function validManifest(manifest) { return manifestErrors(manifest).length === 0; }
 
 function migrateLegacy(target) {
   const skill = join(target, ".cursor", "skills", "deliberate"); const agent = join(target, ".cursor", "agents", "deliberate-reviewer.md");
@@ -57,14 +75,13 @@ export function installCursor(targetDir, { force = false } = {}) {
 
 export function checkCursorInstall(targetDir) {
   const target = resolve(targetDir); const manifest = safeReadJson(join(target, ".intent-witness", "install.json")); const mismatches = [];
-  if (!validManifest(manifest)) {
-    mismatches.push(".intent-witness/install.json (missing or invalid manifest)");
+  const manifestProblems = manifestErrors(manifest);
+  if (manifestProblems.length) {
+    mismatches.push(...manifestProblems.map((problem) => `.intent-witness/install.json (${problem})`));
     if (existsSync(join(target, ".cursor", "skills", "deliberate"))) mismatches.push(join(".cursor", "skills", "deliberate"));
     if (existsSync(join(target, ".cursor", "agents", "deliberate-reviewer.md"))) mismatches.push(join(".cursor", "agents", "deliberate-reviewer.md"));
     return mismatches;
   }
-  if (manifest.packageVersion !== PACKAGE.version) mismatches.push(".intent-witness/install.json (package version)");
-  if (manifest.adapterVersion !== ADAPTER_VERSION) mismatches.push(".intent-witness/install.json (adapter version)");
   const expected = sourceManifest();
   for (const [path, expectedHash] of Object.entries(expected)) { const installed = targetPath(target, path); if (manifest.managedFiles[path] !== expectedHash) mismatches.push(`.intent-witness/install.json (${path} hash)`); if (!existsSync(installed) || hash(installed) !== expectedHash) mismatches.push(path); }
   for (const path of Object.keys(manifest.managedFiles)) if (!(path in expected)) mismatches.push(`.intent-witness/install.json (stale ${path})`);

@@ -13,7 +13,7 @@ const [command, adapter, ...rest] = args;
 if (!command || !adapter || adapter !== "cursor" || !["install", "check"].includes(command)) usage(2);
 const force = rest.includes("--force");
 const paths = rest.filter((item) => item !== "--force");
-if (paths.length > 1 || (command === "check" && force)) usage(2);
+if (paths.length > 1 || paths.some((item) => item.startsWith("-")) || (command === "check" && force)) usage(2);
 const target = paths[0] ?? process.cwd();
 if (command === "install") {
   const result = installCursor(target, { force });
