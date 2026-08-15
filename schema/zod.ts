@@ -151,7 +151,7 @@ export const reviewRequestSchema = z.object({
   target: z.object({ route: z.string().min(1), baseUrl: z.string().url(), changedFiles: z.array(z.string().min(1)) }),
   productIntent: productIntentSchema,
   constraints: z.array(z.string().min(1)),
-  capturedEvidence: z.array(evidenceSchema),
+  capturedEvidence: z.array(evidenceSchema).min(1),
   priorReviewId: z.string().min(1).optional(),
 }).superRefine((request, context) => {
   if (request.mode === "comparison" && !request.priorReviewId) context.addIssue({ code: "custom", path: ["priorReviewId"], message: "comparison mode requires a priorReviewId" });

@@ -120,6 +120,7 @@
       }
     },
     "capturedEvidence": {
+      "minItems": 1,
       "type": "array",
       "items": {
         "oneOf": [

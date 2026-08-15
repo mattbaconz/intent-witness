@@ -1,0 +1,9 @@
+{
+  "files": {
+    "src/App.tsx": "398428162f579cb14178cbf7cb137bb3af1a9feac4c6eb4bf774d2431d3d73dd",
+    "src/data.ts": "4b4a799e1864971a08e77c566d69fd62fd9e62077124ce3d7a1ba7d57ceaa5b2",
+    "src/index.css": "ac302089185e60b39518e336a7d9ca20bbf3c6cde36f4ee4ce80f2c36637305d",
+    "src/main.tsx": "b10869122e05a4e44207e03b20166365f949ffd4ea850a8ffb17b7e41a685c16",
+    "src/vite-env.d.ts": "65996936fbb042915f7b74a200fcdde7e410f32a669b1ab9597cfaa4b0faddb5"
+  }
+}

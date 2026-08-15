@@ -1,0 +1,26 @@
+protocol_version: "0.1"
+schema_version: "0.1"
+metadata:
+  review_id: relayops-fixture-pass-with-notes
+  created_at: "2026-08-16T00:15:00.000Z"
+  mode: initial
+result:
+  protocol_version: "0.1"
+  schema_version: "0.1"
+  verdict: PASS_WITH_NOTES
+  summary: The fixture exercises a shippable result with a non-blocking polish note.
+  deepest_problem: polish
+  overall_confidence: medium
+  alternatives_required: false
+  findings:
+    - id: relayops-secondary-label-contrast
+      title: Secondary labels are subdued
+      observation: The supplied fixture screenshot shows muted labels in the KPI strip.
+      product_mismatch: Operators scanning secondary counts may need slightly stronger label contrast, but the primary job remains clear.
+      depth: polish
+      severity: non_blocking
+      confidence: medium
+      evidence:
+        - kind: screenshot
+          path: .intent-witness/evidence/relayops-fixture-pass-with-notes/runs-desktop.png
+          fact: Secondary KPI labels use a muted gray treatment.

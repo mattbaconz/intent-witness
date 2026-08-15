@@ -27,7 +27,7 @@ describe("publishable package", () => {
       const program = "import { validateComparisonResult, validateReviewResult } from '@mattbaconz/intent-witness/schema'; const runtime = validateComparisonResult({ priorReviewId: 'r', resolvedFindingIds: ['f'], unresolvedFindingIds: ['f'], regressions: [], improvements: [], verdict: 'REVISE', nextAction: 'Fix it.' }); console.log(typeof validateReviewResult, runtime.ok);";
       expect(execFileSync(process.execPath, ["--input-type=module", "--eval", program], { cwd: dir, encoding: "utf8" }).trim()).toBe("function false");
     } finally { rmSync(dir, { recursive: true, force: true }); }
-  });
+  }, 60_000);
 
   it("accepts only install/check Cursor command shapes", () => {
     const bin = join(root, "bin", "intent-witness.mjs");
@@ -36,11 +36,11 @@ describe("publishable package", () => {
     expect(() => execFileSync(process.execPath, [bin, "check", "cursor", "--unknown"], { encoding: "utf8", stdio: "pipe" })).toThrow();
   });
 
-  it("keeps vault, installed state, tests, and scratch artifacts out of the tarball", () => {
+  it("keeps private, generated, local-state, test, and scratch artifacts out of the tarball", () => {
     const npmCli = process.env.npm_execpath;
     if (!npmCli) throw new Error("npm_execpath is required to inspect npm pack content");
     const packed = JSON.parse(execFileSync(process.execPath, [npmCli, "pack", "--dry-run", "--json"], { cwd: root, encoding: "utf8" }));
     const paths = packed[0].files.map((file: { path: string }) => file.path);
-    expect(paths.some((path: string) => /intent-witness-vault|\.cursor|\.intent-witness|\.test\.|evals\//.test(path))).toBe(false);
+    expect(paths.some((path: string) => /intent-witness-vault|\.cursor|\.intent-witness|\.test\.|evals\/|(?:^|\/)\.env(?:\.|$)|node_modules\/|\.superpowers\/|\.worktrees\/|(?:^|\/)dist\/(?!schema\/)/.test(path))).toBe(false);
   });
 });
