@@ -6,8 +6,9 @@ dist/
 *.log
 examples/demo-dashboard/node_modules/
 examples/demo-dashboard/dist/
-.deliberate/reviews/*.yaml
-.deliberate/reviews/*.yml
-.deliberate/reviews/*.json
-.deliberate/evidence/
+.intent-witness/reviews/*
+!.intent-witness/reviews/.gitkeep
+.intent-witness/evidence/
+.intent-witness/backups/
+.intent-witness/scratch/
 !evals/fixtures/

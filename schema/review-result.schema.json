@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://deliberate.dev/schema/review-result.schema.json",
-  "title": "Deliberate ReviewResult",
+  "$id": "https://intent-witness.dev/schema/review-result.schema.json",
+  "title": "Intent Witness ReviewResult",
   "type": "object",
   "additionalProperties": false,
   "required": [

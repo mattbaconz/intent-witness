@@ -6,16 +6,16 @@ import { checkCursorInstall, installCursor } from "./install-cursor.mjs";
 
 describe("install-cursor", () => {
   it("copies skill and readonly reviewer, then --check passes", () => {
-    const dir = mkdtempSync(join(tmpdir(), "deliberate-install-"));
+    const dir = mkdtempSync(join(tmpdir(), "intent-witness-install-"));
     try {
       installCursor(dir);
       expect(checkCursorInstall(dir)).toEqual([]);
       const agent = readFileSync(
-        join(dir, ".cursor", "agents", "deliberate-reviewer.md"),
+        join(dir, ".cursor", "agents", "intent-witness-reviewer.md"),
         "utf8",
       );
       expect(agent).toMatch(/readonly:\s*true/);
-      expect(readFileSync(join(dir, ".deliberate", "intent.md"), "utf8")).toContain(
+      expect(readFileSync(join(dir, ".intent-witness", "intent.md"), "utf8")).toContain(
         "Product Intent",
       );
     } finally {
@@ -24,22 +24,22 @@ describe("install-cursor", () => {
   });
 
   it("does not overwrite an existing intent.md", () => {
-    const dir = mkdtempSync(join(tmpdir(), "deliberate-install-"));
+    const dir = mkdtempSync(join(tmpdir(), "intent-witness-install-"));
     try {
-      mkdirSync(join(dir, ".deliberate"), { recursive: true });
-      writeFileSync(join(dir, ".deliberate", "intent.md"), "# keep me\n");
+      mkdirSync(join(dir, ".intent-witness"), { recursive: true });
+      writeFileSync(join(dir, ".intent-witness", "intent.md"), "# keep me\n");
       installCursor(dir);
-      expect(readFileSync(join(dir, ".deliberate", "intent.md"), "utf8")).toBe("# keep me\n");
+      expect(readFileSync(join(dir, ".intent-witness", "intent.md"), "utf8")).toBe("# keep me\n");
     } finally {
       rmSync(dir, { recursive: true, force: true });
     }
   });
 
   it("fails --check when the installed skill drifted", () => {
-    const dir = mkdtempSync(join(tmpdir(), "deliberate-install-"));
+    const dir = mkdtempSync(join(tmpdir(), "intent-witness-install-"));
     try {
       installCursor(dir);
-      writeFileSync(join(dir, ".cursor", "skills", "deliberate", "SKILL.md"), "drift\n");
+      writeFileSync(join(dir, ".cursor", "skills", "intent-witness", "SKILL.md"), "drift\n");
       expect(checkCursorInstall(dir).length).toBeGreaterThan(0);
     } finally {
       rmSync(dir, { recursive: true, force: true });

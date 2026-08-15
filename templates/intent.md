@@ -1,6 +1,6 @@
 # Product Intent
 
-> Copy to `.deliberate/intent.md` in a project and edit. Keep concise enough for agents to load repeatedly.
+> Copy to `.intent-witness/intent.md` in a project and edit. Keep concise enough for agents to load repeatedly.
 
 ## Product
 
@@ -54,6 +54,6 @@ Examples: operational, calm, playful, editorial, dense, trustworthy, tactile, fa
 -
 -
 
-## Notes for Deliberate
+## Notes for Intent Witness
 
 > Anything the reviewer must understand before challenging conventions.

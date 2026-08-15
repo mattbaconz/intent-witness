@@ -4,8 +4,8 @@ import { dirname, join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
-const SKILL_SRC = join(ROOT, "skill", "deliberate");
-const AGENT_SRC = join(ROOT, "adapters", "cursor", "deliberate-reviewer.md");
+const SKILL_SRC = join(ROOT, "skill", "intent-witness");
+const AGENT_SRC = join(ROOT, "adapters", "cursor", "intent-witness-reviewer.md");
 const INTENT_TEMPLATE = join(ROOT, "templates", "intent.md");
 
 function usage() {
@@ -40,10 +40,10 @@ function filesMatch(a, b) {
 
 export function installCursor(targetDir) {
   const target = resolve(targetDir);
-  const skillDest = join(target, ".cursor", "skills", "deliberate");
-  const agentDest = join(target, ".cursor", "agents", "deliberate-reviewer.md");
-  const intentDest = join(target, ".deliberate", "intent.md");
-  const reviewsDir = join(target, ".deliberate", "reviews");
+  const skillDest = join(target, ".cursor", "skills", "intent-witness");
+  const agentDest = join(target, ".cursor", "agents", "intent-witness-reviewer.md");
+  const intentDest = join(target, ".intent-witness", "intent.md");
+  const reviewsDir = join(target, ".intent-witness", "reviews");
 
   if (existsSync(skillDest)) rmSync(skillDest, { recursive: true, force: true });
   copyDir(SKILL_SRC, skillDest);
@@ -61,18 +61,18 @@ export function installCursor(targetDir) {
 
 export function checkCursorInstall(targetDir) {
   const target = resolve(targetDir);
-  const skillDest = join(target, ".cursor", "skills", "deliberate");
+  const skillDest = join(target, ".cursor", "skills", "intent-witness");
   const mismatches = [];
 
   for (const file of walkFiles(SKILL_SRC)) {
     const rel = relative(SKILL_SRC, file);
     const dest = join(skillDest, rel);
-    if (!filesMatch(file, dest)) mismatches.push(join(".cursor", "skills", "deliberate", rel));
+    if (!filesMatch(file, dest)) mismatches.push(join(".cursor", "skills", "intent-witness", rel));
   }
 
-  const agentDest = join(target, ".cursor", "agents", "deliberate-reviewer.md");
+  const agentDest = join(target, ".cursor", "agents", "intent-witness-reviewer.md");
   if (!filesMatch(AGENT_SRC, agentDest)) {
-    mismatches.push(join(".cursor", "agents", "deliberate-reviewer.md"));
+    mismatches.push(join(".cursor", "agents", "intent-witness-reviewer.md"));
   }
 
   return mismatches;
@@ -98,14 +98,14 @@ if (isMain) {
   if (check) {
     const mismatches = checkCursorInstall(target);
     if (mismatches.length > 0) {
-      console.error("Deliberate Cursor install is out of date:");
+      console.error("Intent Witness Cursor install is out of date:");
       for (const file of mismatches) console.error(`  ${file}`);
       process.exit(1);
     }
-    console.log(`Deliberate Cursor install matches source (${target})`);
+    console.log(`Intent Witness Cursor install matches source (${target})`);
   } else {
     const result = installCursor(target);
-    console.log(`Installed Deliberate skill → ${result.skillDest}`);
+    console.log(`Installed Intent Witness skill → ${result.skillDest}`);
     console.log(`Installed reviewer agent → ${result.agentDest}`);
     console.log(`Product intent → ${result.intentDest}`);
   }
