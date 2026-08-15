@@ -1,18 +1,18 @@
-protocol_version: "0.1"
-schema_version: "0.1"
+protocolVersion: "0.1"
+schemaVersion: "0.1"
 verdict: REVISE
 summary: ""
-deepest_problem: information_architecture
-overall_confidence: high
-alternatives_required: true
-alternative_constraints:
+deepestProblem: information_architecture
+overallConfidence: high
+alternativesRequired: true
+alternativeConstraints:
   - One direction must organize around the primary domain object.
   - One direction cannot reuse the current macrostructure.
 findings:
   - id: finding-1
     title: ""
     observation: ""
-    product_mismatch: ""
+    productMismatch: ""
     depth: information_architecture
     severity: material
     confidence: high
@@ -20,9 +20,9 @@ findings:
       - kind: screenshot
         path: ""
         fact: ""
-    revision_constraint: Do not solve this with polish-only changes.
+    revisionConstraint: Do not solve this with polish-only changes.
 # For INSUFFICIENT_EVIDENCE, use no findings and add, for example:
-# evidence_requests:
+# evidenceRequests:
 #   - id: mobile-active-run
 #     request: Capture /runs at 390px with the active run state visible.
 #     reason: Responsive task priority cannot be judged from supplied evidence.

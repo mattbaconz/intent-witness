@@ -22,7 +22,7 @@ function applyReviewResultRules(schema: JsonObject) {
     },
     {
       if: { properties: { alternativesRequired: { const: true } }, required: ["alternativesRequired"] },
-      then: { required: ["alternativeConstraints"], properties: { deepestProblem: { enum: ["information_architecture", "interaction"] }, alternativeConstraints: { minItems: 2, maxItems: 3, items: { type: "string", minLength: 1 } } } },
+      then: { required: ["alternativeConstraints"], properties: { deepestProblem: { enum: ["information_architecture", "interaction"] }, alternativeConstraints: { minItems: 2, maxItems: 3, items: { type: "string", minLength: 1, pattern: "\\S" } } } },
     },
   ];
 }

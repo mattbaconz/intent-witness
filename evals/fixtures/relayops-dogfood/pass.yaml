@@ -1,14 +1,14 @@
-protocol_version: "0.1"
-schema_version: "0.1"
+protocolVersion: "0.1"
+schemaVersion: "0.1"
 metadata:
-  review_id: relayops-fixture-pass
-  created_at: "2026-08-16T00:10:00.000Z"
+  reviewId: relayops-fixture-pass
+  createdAt: "2026-08-16T00:10:00.000Z"
   mode: initial
 result:
-  protocol_version: "0.1"
-  schema_version: "0.1"
+  protocolVersion: "0.1"
+  schemaVersion: "0.1"
   verdict: PASS
   summary: The fixture exercises a clean pass with adequate supplied evidence.
-  overall_confidence: medium
-  alternatives_required: false
+  overallConfidence: medium
+  alternativesRequired: false
   findings: []

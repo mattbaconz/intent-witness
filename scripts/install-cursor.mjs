@@ -32,7 +32,6 @@ reviews/
 backups/
 scratch/
 install.json
-intent.md
 `;
 
 function walkFiles(dir) {

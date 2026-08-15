@@ -10,7 +10,7 @@ const valid = {
   alternativeConstraints: ["Put active work first.", "Keep administration secondary."],
   findings: [{ id: "f1", title: "Active work is buried", observation: "Metrics lead.", productMismatch: "Operators need active work first.", depth: "information_architecture", severity: "material", confidence: "high", evidence: [{ kind: "screenshot", path: "evidence/a.png" }] }],
 };
-const ajv = new Ajv2020({ strict: false, formats: { "date-time": true } });
+const ajv = new Ajv2020({ strict: false, formats: { "date-time": true, uri: true } });
 const check = ajv.compile(reviewResultSchema);
 const checkArtifact = ajv.compile(reviewArtifactSchema);
 const checkRequest = ajv.compile(reviewRequestSchema);
@@ -42,6 +42,13 @@ describe("generated review-result JSON Schema", () => {
   ])("rejects invalid %s", (_name, input) => expect(check(input)).toBe(false));
 
   it("accepts three structural alternatives", () => expect(check({ ...valid, alternativeConstraints: ["1", "2", "3"] })).toBe(true));
+
+  it("rejects whitespace-only structural constraints at runtime and in JSON Schema", () => {
+    const result = { ...valid, alternativeConstraints: ["Keep active work first.", "   "] };
+    expect(validateReviewArtifact(artifactWith(result)).ok).toBe(false);
+    expect(check(result)).toBe(false);
+    expect(checkArtifact(artifactWith(result))).toBe(false);
+  });
 
   it("rejects more than five material findings in standalone results and artifacts", () => {
     const findings = Array.from({ length: 6 }, (_, index) => ({ ...valid.findings[0], id: `f${index + 1}` }));
@@ -83,6 +90,13 @@ describe("generated review-result JSON Schema", () => {
 });
 
 describe("runtime and JSON Schema input parity", () => {
+  it("keeps snake_case as runtime-only backward-compatible input", () => {
+    const { protocolVersion: _protocolVersion, ...withoutCanonical } = validRequest;
+    const legacyRequest = { ...withoutCanonical, protocol_version: "0.1" };
+    expect(validateReviewRequest(legacyRequest).ok).toBe(true);
+    expect(checkRequest(legacyRequest)).toBe(false);
+  });
+
   it("requires priorReviewId for comparison requests in both validators", () => {
     const request = { ...validRequest, mode: "comparison" };
     expect(validateReviewRequest(request).ok).toBe(false);

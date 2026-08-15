@@ -1,25 +1,25 @@
-protocol_version: "0.1"
-schema_version: "0.1"
+protocolVersion: "0.1"
+schemaVersion: "0.1"
 metadata:
-  review_id: relayops-fixture-initial
-  created_at: "2026-08-16T00:00:00.000Z"
+  reviewId: relayops-fixture-initial
+  createdAt: "2026-08-16T00:00:00.000Z"
   mode: initial
 result:
-  protocol_version: "0.1"
-  schema_version: "0.1"
+  protocolVersion: "0.1"
+  schemaVersion: "0.1"
   verdict: REVISE
   summary: Active execution is structurally subordinate to aggregate metrics in the supplied RelayOps evidence packet.
-  deepest_problem: information_architecture
-  overall_confidence: high
-  alternatives_required: true
-  alternative_constraints:
+  deepestProblem: information_architecture
+  overallConfidence: high
+  alternativesRequired: true
+  alternativeConstraints:
     - Organize one direction around the active run as the dominant object.
     - Do not use KPI cards as the primary organizing structure in one direction.
   findings:
     - id: relayops-active-run-subordinate
       title: Active run is visually subordinate to aggregate metrics
       observation: Four equal-weight KPI cards occupy the strongest first-viewport hierarchy while active runs appear below them.
-      product_mismatch: Operators must monitor active execution and intervene on failure; aggregate totals are secondary to the current run state.
+      productMismatch: Operators must monitor active execution and intervene on failure; aggregate totals are secondary to the current run state.
       depth: information_architecture
       severity: material
       confidence: high
@@ -34,4 +34,4 @@ result:
             - Open the dashboard.
             - Locate a failed active run.
           fact: The failed-run state follows the aggregate KPI row.
-      revision_constraint: Do not solve this by only shrinking or restyling KPI cards; reorganize around active execution.
+      revisionConstraint: Do not solve this by only shrinking or restyling KPI cards; reorganize around active execution.

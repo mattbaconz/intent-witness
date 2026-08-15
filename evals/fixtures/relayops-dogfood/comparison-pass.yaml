@@ -1,24 +1,24 @@
-protocol_version: "0.1"
-schema_version: "0.1"
+protocolVersion: "0.1"
+schemaVersion: "0.1"
 metadata:
-  review_id: relayops-fixture-comparison-cycle-1
-  created_at: "2026-08-16T00:05:00.000Z"
+  reviewId: relayops-fixture-comparison-cycle-1
+  createdAt: "2026-08-16T00:05:00.000Z"
   mode: comparison
 result:
-  protocol_version: "0.1"
-  schema_version: "0.1"
+  protocolVersion: "0.1"
+  schemaVersion: "0.1"
   verdict: PASS
   summary: The synthetic comparison resolves the original information-architecture finding within the first revision cycle.
-  overall_confidence: high
-  alternatives_required: false
+  overallConfidence: high
+  alternativesRequired: false
   findings: []
 comparison:
-  prior_review_id: relayops-fixture-initial
-  resolved_finding_ids:
+  priorReviewId: relayops-fixture-initial
+  resolvedFindingIds:
     - relayops-active-run-subordinate
-  unresolved_finding_ids: []
+  unresolvedFindingIds: []
   regressions: []
   improvements:
     - Active execution is now the strongest first-viewport object in this fixture's revised evidence packet.
   verdict: PASS
-  next_action: Stop after the first comparison cycle; the original finding is resolved.
+  nextAction: Stop after the first comparison cycle; the original finding is resolved.

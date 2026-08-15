@@ -15,6 +15,8 @@ Edit `.intent-witness/intent.md`, start the app, capture desktop/narrow/state ev
 
 The installer adds managed Cursor skill/agent files plus user-owned intent, evidence, reviews, and an install manifest. Details: [install](docs/install.md) and [support](docs/support.md).
 
+The canonical wire format for review requests, results, and artifacts is camelCase. Published JSON Schemas validate that canonical camelCase shape. Runtime validators normalize snake_case only as backward-compatible input for older artifacts.
+
 ## Boundaries
 
 Cards, gradients, sidebars, density, and familiar typefaces are not automatic failures. V0 has no universal aesthetic, SlopScore, hosted service, Playwright capture, hooks, or extra ADE adapters. RelayOps is a deliberate metric-first demo, not an indictment of dashboards.

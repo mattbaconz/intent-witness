@@ -1,23 +1,23 @@
-protocol_version: "0.1"
-schema_version: "0.1"
-review_id: relayops-fixture-initial
+protocolVersion: "0.1"
+schemaVersion: "0.1"
+reviewId: relayops-fixture-initial
 mode: initial
 target:
   route: /runs
-  base_url: http://localhost:5173
-  changed_files:
+  baseUrl: http://localhost:5173
+  changedFiles:
     - src/App.tsx
-product_intent:
-  product_name: RelayOps
+productIntent:
+  productName: RelayOps
   domain: operations
-  target_users:
+  targetUsers:
     - operator
-  primary_job: Monitor active execution and intervene on failure.
-  primary_objects:
+  primaryJob: Monitor active execution and intervene on failure.
+  primaryObjects:
     - run
 constraints:
   - Preserve keyboard navigation.
-captured_evidence:
+capturedEvidence:
   - kind: screenshot
     path: .intent-witness/evidence/relayops-fixture-initial/runs-desktop.png
     region: first viewport

@@ -130,10 +130,31 @@ describe("release readiness contracts", () => {
 
     const installDocs = readFileSync(join(root, "docs", "install.md"), "utf8");
     expect(installDocs).toMatch(/privacy/i);
-    expect(installDocs).toMatch(/opt[- ]in.*version/i);
-    for (const path of ["evidence/", "reviews/", "backups/", "install.json", "intent.md"]) {
+    expect(installDocs).toMatch(/intent\.md.*versionable by default/i);
+    for (const path of ["evidence/", "reviews/", "backups/", "install.json"]) {
       expect(installDocs).toContain(`\`${path}\``);
     }
+  });
+
+  it("documents camelCase as the sole canonical wire format", () => {
+    const guide = readFileSync(join(root, "skill", "intent-witness", "references", "schema.md"), "utf8");
+    expect(guide).toMatch(/camelCase.*canonical/i);
+    expect(guide).toMatch(/snake_case.*backward-compatible/i);
+    expect(guide).toMatch(/JSON Schemas.*canonical camelCase/i);
+    expect(guide).not.toMatch(/^protocol_version:/m);
+
+    const reviewer = readFileSync(join(root, "adapters", "cursor", "intent-witness-reviewer.md"), "utf8");
+    expect(reviewer).toMatch(/evidenceRequests/);
+    expect(reviewer).toMatch(/alternativesRequired/);
+    expect(reviewer).toMatch(/priorReviewId/);
+
+    const template = readFileSync(join(root, "templates", "review-result.yaml"), "utf8");
+    expect(template).toMatch(/^protocolVersion:/m);
+    expect(template).not.toMatch(/^protocol_version:/m);
+
+    const readme = readFileSync(join(root, "README.md"), "utf8");
+    expect(readme).toMatch(/canonical wire format.*camelCase/i);
+    expect(readme).toMatch(/snake_case.*backward-compatible/i);
   });
 
   it("keeps RelayOps source at the task baseline", () => {

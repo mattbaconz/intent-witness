@@ -41,7 +41,7 @@ For material page changes, the packet should normally include a primary desktop 
 
 Use only explicitly supplied source/DOM facts when they are part of the evidence packet; source/DOM inspection never replaces rendered evidence.
 
-If supplied evidence is inadequate, return `INSUFFICIENT_EVIDENCE` with no fabricated findings and a YAML `evidence_requests` list. Each item needs an id, a specific requested route/viewport/state/interaction/artifact fact, and a reason. The parent must capture those requests and rerun the review; never browse to fulfill them yourself.
+If supplied evidence is inadequate, return `INSUFFICIENT_EVIDENCE` with no fabricated findings and a YAML `evidenceRequests` list. Each item needs an id, a specific requested route/viewport/state/interaction/artifact fact, and a reason. The parent must capture those requests and rerun the review; never browse to fulfill them yourself.
 
 ## Review
 
@@ -65,7 +65,7 @@ Classify each material finding as:
 
 `polish` → `composition` → `information_architecture` → `interaction`
 
-Choose the deepest layer actually causing the issue. If the issue is IA or interaction, set `alternatives_required: true` with constraints that force structural distance. Do not ask for three colorways of the same layout.
+Choose the deepest layer actually causing the issue. If the issue is IA or interaction, set `alternativesRequired: true` with constraints that force structural distance. Do not ask for three colorways of the same layout.
 
 ## Output
 
@@ -73,6 +73,8 @@ Return only:
 
 1. A concise human summary (verdict, deepest issue, 1–3 bullets).
 2. A fenced YAML `ReviewResult` matching `skill/intent-witness/references/schema.md`.
+
+Emit canonical camelCase field names. Runtime validators accept legacy snake_case as backward-compatible input, but reviewer output and published JSON Schemas use camelCase only.
 
 Every material finding needs evidence. At most 5 material findings. `REVISE` requires at least one material finding.
 
@@ -85,4 +87,4 @@ When previous review is supplied, compare finding IDs:
 - regressions;
 - material improvements.
 
-Do not restart aesthetic critique from zero. Include a comparison block (`prior_review_id`, `resolved_finding_ids`, `unresolved_finding_ids`, `regressions`, `improvements`, `verdict`, `next_action`).
+Do not restart aesthetic critique from zero. Include a comparison block (`priorReviewId`, `resolvedFindingIds`, `unresolvedFindingIds`, `regressions`, `improvements`, `verdict`, `nextAction`).

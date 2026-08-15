@@ -62,7 +62,7 @@ describe("install-cursor", () => {
       expect(defaults).toMatch(/^reviews\/$/m);
       expect(defaults).toMatch(/^backups\/$/m);
       expect(defaults).toMatch(/^install\.json$/m);
-      expect(defaults).toMatch(/^intent\.md$/m);
+      expect(defaults).not.toMatch(/^intent\.md$/m);
 
       mkdirSync(join(preserved, ".intent-witness"), { recursive: true });
       writeFileSync(join(preserved, ".intent-witness", ".gitignore"), "# user policy\n");

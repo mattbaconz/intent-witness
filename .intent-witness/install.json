@@ -3,13 +3,13 @@
   "packageVersion": "0.1.0-alpha.1",
   "adapter": "cursor",
   "adapterVersion": "0.1",
-  "installedAt": "2026-08-15T18:00:50.087Z",
+  "installedAt": "2026-08-15T18:23:34.478Z",
   "managedFiles": {
     ".cursor/skills/intent-witness/references/convergence.md": "69580a92cfe7663d46e5739dda8202fc6205f09b522c04a3ea2717706c35ee2c",
     ".cursor/skills/intent-witness/references/design-reasoning.md": "f44ca2041943f89ed8adbdc11a560a7cc63a6f1c8426b4c795e10e52af01e8cb",
     ".cursor/skills/intent-witness/references/review-protocol.md": "12004ddbdb83227363abe2803a401b9cc4aa17d217b13634472be561a65ab415",
-    ".cursor/skills/intent-witness/references/schema.md": "7c82f2e943bce92de0b3a26dad8780ea9cd790db4b5a396ff0f730df2db89c0a",
+    ".cursor/skills/intent-witness/references/schema.md": "9796542f62c3748b9c5781a3565b4f43fe2013140f66ddf7b489fa98c01ea09e",
     ".cursor/skills/intent-witness/SKILL.md": "afa6ca08fe8ec80d97c86bc8506533fbdb2d370bbc852216fb9cf6593fbd60d5",
-    ".cursor/agents/intent-witness-reviewer.md": "33a521800b6c169cc73ff57f4afc72b33a39051176f3ea0cccb3e9ba2c8fe742"
+    ".cursor/agents/intent-witness-reviewer.md": "ddc20e8b9a930a16c95aa1738217ea72a2b58bb5835297bbbba2e547ac889c17"
   }
 }

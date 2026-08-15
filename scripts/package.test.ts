@@ -3,6 +3,8 @@ import { existsSync, mkdtempSync, readFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
+import Ajv2020 from "ajv/dist/2020.js";
+import { parse as parseYaml } from "yaml";
 import { describe, expect, it } from "vitest";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
@@ -14,6 +16,10 @@ describe("publishable package", () => {
     expect(pkg.exports["./schema"].import).toBe("./dist/schema/index.js");
     for (const name of ["review-result", "review-request", "review-artifact"]) {
       expect(pkg.exports[`./schema/${name}.schema.json`]).toBe(`./schema/${name}.schema.json`);
+    }
+    expect(pkg.repository.url).toBe("https://github.com/mattbaconz/intent-witness.git");
+    for (const residue of ["main", "directories", "keywords", "author", "bugs", "homepage"]) {
+      expect(pkg).not.toHaveProperty(residue);
     }
     expect(existsSync(join(root, pkg.bin["intent-witness"]))).toBe(true);
   });
@@ -29,6 +35,20 @@ describe("publishable package", () => {
       execFileSync(process.execPath, [npmCli, "install", "--ignore-scripts", packageFile], { cwd: dir, encoding: "utf8" });
       const program = "import { readFileSync } from 'node:fs'; import { validateComparisonResult, validateReviewResult } from '@mattbaconz/intent-witness/schema'; const runtime = validateComparisonResult({ priorReviewId: 'r', resolvedFindingIds: ['f'], unresolvedFindingIds: ['f'], regressions: [], improvements: [], verdict: 'REVISE', nextAction: 'Fix it.' }); const names = ['review-result', 'review-request', 'review-artifact']; const schemas = names.map((name) => JSON.parse(readFileSync(new URL(import.meta.resolve(`@mattbaconz/intent-witness/schema/${name}.schema.json`)), 'utf8'))); console.log(typeof validateReviewResult, runtime.ok, schemas.every((schema) => schema.$schema.endsWith('2020-12/schema')));";
       expect(execFileSync(process.execPath, ["--input-type=module", "--eval", program], { cwd: dir, encoding: "utf8" }).trim()).toBe("function false true");
+
+      const installedSchemaRoot = join(dir, "node_modules", "@mattbaconz", "intent-witness", "schema");
+      const requestSchema = JSON.parse(readFileSync(join(installedSchemaRoot, "review-request.schema.json"), "utf8"));
+      const artifactSchema = JSON.parse(readFileSync(join(installedSchemaRoot, "review-artifact.schema.json"), "utf8"));
+      const ajv = new Ajv2020({ strict: false, formats: { "date-time": true, uri: true } });
+      const validateRequest = ajv.compile(requestSchema);
+      const validateArtifact = ajv.compile(artifactSchema);
+      const fixtureRoot = join(root, "evals", "fixtures", "relayops-dogfood");
+      for (const name of ["request-initial.yaml", "prompt-injection-request.yaml"]) {
+        expect(validateRequest(parseYaml(readFileSync(join(fixtureRoot, name), "utf8"))), `${name}: ${ajv.errorsText(validateRequest.errors)}`).toBe(true);
+      }
+      for (const name of ["initial-revise.yaml", "comparison-pass.yaml", "pass.yaml", "pass-with-notes.yaml", "request-insufficient-evidence.yaml", "prompt-injection-artifact.yaml"]) {
+        expect(validateArtifact(parseYaml(readFileSync(join(fixtureRoot, name), "utf8"))), `${name}: ${ajv.errorsText(validateArtifact.errors)}`).toBe(true);
+      }
     } finally { rmSync(dir, { recursive: true, force: true }); }
   }, 60_000);
 
