@@ -24,10 +24,12 @@ The automated audit verifies the canonical reviewer remains read-only, requests 
 
 RelayOps dogfood files in `evals/fixtures/relayops-dogfood/` are deterministic protocol fixtures. They are not proof of actual Cursor behavior or benchmark results.
 
-## External gates — not completed by this repository
+A live Cursor dogfood of RelayOps ran on 2026-08-16 against the as-shipped demo at `http://localhost:5173/`. The independent reviewer returned `REVISE` at `information_architecture` depth, with structural-alternative constraints and no polish-only brief. Captured screenshots and the YAML artifact stay in gitignored local state and the private operations repository. That run is not a benchmark result.
+
+## External gates
 
 - [ ] Professional name clearance has been completed through the appropriate process.
-- [ ] Real current-stable Cursor dogfood has been performed and independently documented.
+- [x] Real current-stable Cursor dogfood has been performed and independently documented.
 - [ ] Public/private repo creation and intended visibility have been explicitly authorized and completed.
 - [ ] Branch protection is configured on the intended remote default branch.
 - [ ] npm publication is authorized and completed from the intended account.

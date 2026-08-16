@@ -2,6 +2,8 @@
 
 Intent Witness is a local-first, Cursor-only design-review workflow. A parent captures rendered evidence; a fresh hard-read-only reviewer judges it against product intent. It returns evidence-backed constraints, never numeric scores or a house style.
 
+This is public alpha `0.1.0-alpha.1`. Intent Witness is a working name pending professional clearance. There are no public benchmark claims.
+
 ## Five-minute alpha path
 
 Requires Node 20+ and Cursor.
